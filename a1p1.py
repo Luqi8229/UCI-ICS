@@ -4,7 +4,7 @@
 # L - list contents of user specified directory
 # Q - Quit program
 
-from pathlib import Path, PurePath
+from pathlib import Path, PurePath, PurePosixPath
 
 #sort contents for files
 def file_list(path):
@@ -24,9 +24,8 @@ def print_info(info):
 def select_filename(path, name):
     return [fil for fil in file_list(path) if fil.name == name]
     
-
 def select_extension(path, ext):
-    pass
+    return [fil for fil in file_list(path) if fil.suffix == ext]
 
 def recursive_contents(path, options=[]):
     content = []
@@ -36,11 +35,14 @@ def recursive_contents(path, options=[]):
     for i in range(numDirectory + 1):
         if len(options) == 0:
             content.append( path )
+            content.append( file_list(path) )
         else:
-            if "-s" in options:
+            if "-f" in options:
+                content.append( file_list(path) )
+            elif "-s" in options:
                 content.append( select_filename(path, options[1]) )
-            if "-e" in options:
-                content.append(  )
+            elif "-e" in options:
+                content.append( select_extension(path, options[1]) )
         if i == numDirectory:
             break
         else:
@@ -80,13 +82,6 @@ def remove_list_info(ls, stride=1):
 def run_command(ls):
     if ls[0] == "L":
         path = convert_to_Path(ls[1])
-        # if ls[2] == "-r":
-        #     list_recursive_contents(path)
-        #     if ls[3] == "-s":
-        #         pass
-        # elif ls[2] == "-f":
-        #     list_file_contents(path)
-        # else:
         nls = remove_list_info(ls, 2)
         list_contents(path, nls)
 
