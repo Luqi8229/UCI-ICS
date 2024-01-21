@@ -21,21 +21,30 @@ def print_info(info):
         else:
             print(str)
 
+def select_filename(path, name):
+    return [fil for fil in file_list(path) if fil.name == name]
+    
+
+def select_extension(path, ext):
+    pass
+
 def recursive_contents(path, options=[]):
     content = []
-    files = file_list(path)
-    if len(files) > 0:
-        content.append(files)
-    
-    directories = directory_list(path)
-    if len(directories) > 0:
-        for dir in directories:
-            dPath = convert_to_Path(dir)
-            if "-f" not in options:
-                content.append(dPath)
-            else:
-                content.append( file_list(dPath) )
 
+    directories = directory_list(path)
+    numDirectory = len(directories)
+    for i in range(numDirectory + 1):
+        if len(options) == 0:
+            content.append( path )
+        else:
+            if "-s" in options:
+                content.append( select_filename(path, options[1]) )
+            if "-e" in options:
+                content.append(  )
+        if i == numDirectory:
+            break
+        else:
+            path = convert_to_Path(directories[i])
     return content
 
 def default_contents(path):
