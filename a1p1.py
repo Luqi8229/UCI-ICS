@@ -14,7 +14,14 @@ def file_list(path):
 def directory_list(path):
     return [i for i in path.iterdir() if i.is_dir()]
 
-def recursive(path):
+def print_info(info):
+    for str in info:
+        if type(str) is list:
+            print_info(str)
+        else:
+            print(str)
+
+def recursive_contents(path, options=[]):
     content = []
     files = file_list(path)
     if len(files) > 0:
@@ -24,44 +31,55 @@ def recursive(path):
     if len(directories) > 0:
         for dir in directories:
             dPath = convert_to_Path(dir)
-            content.append(dPath)
-            content.append( file_list(dPath) )
+            if "-f" not in options:
+                content.append(dPath)
+            else:
+                content.append( file_list(dPath) )
 
     return content
+
+def default_contents(path):
+    content = file_list(path)
+    content.append( directory_list(path) )
+    return content
+
+def list_contents(path, options):
+    contents = []
+    if len(options) == 0:
+        contents.append( default_contents(path) )
+    else:
+        nOptions = remove_list_info(options)
+        if options[0] == "-r":
+            if len(nOptions) > 0:
+                contents.append( recursive_contents(path, nOptions) )
+            else:
+                contents.append( recursive_contents(path) )
+        elif options[0] == "-f":
+            contents.append( file_list(path) )
+        elif options[0] == "-s":
+            pass
+        elif options[0] == "-e":
+            pass
+    print_info(contents)
 
 def convert_to_Path(str):
     return Path(PurePath(str))
 
-def print_info(info):
-    for str in info:
-        if type(str) is list:
-            for sub in str:
-                print(sub)
-        else:
-            print(str)
-
-def list_contents(path, **options):
-    myPath = convert_to_Path(path)
-    content = []
-    # PathTypes = [Path(ls[1]), PurePath(ls[1]), myPath]
-    # print(PathTypes)
-    
-    if options["Recursive"] is True:
-        content = recursive(myPath)
-
-    print(options)
-    print()
-    print(content)
-    print()
-    print_info(content)
+def remove_list_info(ls, stride=1):
+    return [ls[i] for i in range(len(ls)) if i > (stride-1)]
 
 def run_command(ls):
     if ls[0] == "L":
-        if ls[2] == "-r":
-            list_contents(ls[1], Recursive = True)
-        else:
-            list_contents(ls[1])
-
+        path = convert_to_Path(ls[1])
+        # if ls[2] == "-r":
+        #     list_recursive_contents(path)
+        #     if ls[3] == "-s":
+        #         pass
+        # elif ls[2] == "-f":
+        #     list_file_contents(path)
+        # else:
+        nls = remove_list_info(ls, 2)
+        list_contents(path, nls)
 
 def discardPaths(ls):
     nls = []
@@ -83,9 +101,6 @@ def main():
         run_command(userSplit)
         userSplit = input().split()
         userSplit = discardPaths(userSplit)
-        
-
 
 if __name__ == "__main__":
     main()
-
