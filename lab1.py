@@ -5,9 +5,8 @@
 # Replace the following placeholders with your information.
 # Please see the README in this repository for the requirements of this lab exercise
 
-# NAME
-# EMAIL
-# STUDENT ID
+# Luqi Chen
+# luqic2@uci.edu
 
 def calculate(n1, n2, op):
     result = 0
