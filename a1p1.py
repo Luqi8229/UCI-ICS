@@ -25,6 +25,8 @@ def select_filename(path, name):
     return [fil for fil in file_list(path) if fil.name == name]
     
 def select_extension(path, ext):
+    if ext.startswith(".") is False:
+        ext = "." + ext
     return [fil for fil in file_list(path) if fil.suffix == ext]
 
 def recursive_contents(path, options=[]):
@@ -68,9 +70,9 @@ def list_contents(path, options):
         elif options[0] == "-f":
             contents.append( file_list(path) )
         elif options[0] == "-s":
-            pass
+            contents.append( select_filename(path, options[1]) )
         elif options[0] == "-e":
-            pass
+            contents.append( select_extension(path, options[1]) )
     print_info(contents)
 
 def convert_to_Path(str):
@@ -85,26 +87,13 @@ def run_command(ls):
         nls = remove_list_info(ls, 2)
         list_contents(path, nls)
 
-def discardPaths(ls):
-    nls = []
-    for i in range(len(ls)-2): #discard C:/Users && c:/Users
-        if "&" in ls[i]:
-            nls.append(ls[i][0: len(ls[i]) - 1])
-    return nls 
-
 def main():
     userSplit = input().split()
-    print("og=", userSplit)
-    
-    # userSplit = discardPaths(userSplit)
-    # print()
-    # print(userSplit)
-    # list_contents(userSplit)
 
     while userSplit[0] != "Q":
         run_command(userSplit)
+        print()
         userSplit = input().split()
-        userSplit = discardPaths(userSplit)
 
 if __name__ == "__main__":
     main()
