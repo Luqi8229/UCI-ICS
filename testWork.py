@@ -11,7 +11,6 @@ def ReverseAndRemove(s):
     if c == " ":
         return newS
     else:
-        
         s = newS + c
     return s
 
