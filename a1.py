@@ -7,7 +7,7 @@
 # D - Delete the file
 # R - Read the contents of a file
 
-from pathlib import Path, PurePath, PurePosixPath
+from pathlib import Path, PurePath
 
 #sort contents for files
 def file_list(path):

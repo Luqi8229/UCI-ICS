@@ -2,18 +2,45 @@
 
 # Starter code for lab 8 in ICS 32 Programming with Software Libraries in Python
 
-# Replace the following placeholders with your information.
 # Please see the README in this repository for the requirements of this lab exercise
-
-# NAME
-# EMAIL
-# STUDENT ID
 
 # ---------------------
 
 # Write your Note class here
+class Note():
+    
+    def __init__(self, name):
+        self.name = name
+    
+    def read_notes(self):
+        wordList = []
+        with open (self.name, "r") as f:
+            wordList = f.readlines()
+        return wordList
+    
+    def save_note(self, note):
+        with open(self.name, "a") as f:
+            f.write(note + "\n")
+
+    def remove_note(self, id):
+        removed_note = ""
+        print(type(id))
+        lines = []
+        with open(self.name, "r") as f:
+            lines = f.readlines()
+        with open(self.name, "w") as f:
+            idTemp = 1
+            for line in lines:
+                print(line)
+                if idTemp == int(id):
+                    removed_note = line
+                else:
+                    f.write(line)
+                idTemp += 1
+        return removed_note
 
 # ---------------------
+from pathlib import Path
 
 def print_notes(notes:list[str]):
     id = 0
@@ -32,7 +59,7 @@ def delete_note(note:Note):
         print("The value you have entered is not a valid integer")
 
 def run():
-    p = Path(NOTES_PATH) / NOTES_FILE
+    p = Path("pyNote.txt")
     if not p.exists():
         p.touch()
     note = Note(p)

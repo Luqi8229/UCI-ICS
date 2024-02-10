@@ -70,7 +70,7 @@ if __name__ == "__main__":
     assert is_int(5) == True
     assert is_int("five") == False
 
-    path = Path(".pynote.txt")
+    path = Path("pynote.txt")
     print("Welcome to PyNote! \n")
     read_notes(path)
 
