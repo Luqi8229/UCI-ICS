@@ -105,11 +105,63 @@ def create_profile(admin=False):
     ui.aline("Profile created", admin)
     return profile
 
+def edit_posts(prof, admin=False):
+    option = ui.prompt_info("Would you like to add or delete posts?", admin)
+    if option == "add":
+        entry = ui.prompt_info("Enter your new post?", admin)
+        newPost = Post(entry)
+        prof.add_post(newPost)
+        ui.aline("New post added!", admin)
+    elif option == "delete":
+        posts = ui.index_posts(prof.get_posts())
+        print(posts)
+        if posts != "You have no posts.":
+            index = ui.prompt_info("Which post would you like to delete", admin)
+            deleted = prof.del_post(int(index)-1)
+            print("Deleted: ", deleted)
+
 def edit_profile(prof, admin=False):
-    pass
+    ui.run_E_menu()
+    edit = ui.prompt_info("What would you like to edit?", admin, str = False, command = True, option = "ep")
+    while edit[0] != "stop":
+        if edit[0] == "all":
+            edit = ['username', 'password', 'bio', 'post']
+        for elm in edit:
+            if elm == "post":
+                edit_posts(prof, admin)
+            else:
+                change = ui.prompt_info(f"Enter your new {elm}", admin)
+                if elm == "username":
+                    prof.username = change
+                elif elm == "password":
+                    prof.password = change
+                elif elm == "bio":
+                    prof.bio = change
+        prof.save_profile( prof.get_filepath() )
+
+        again = ui.yes_or_no("Would you like to edit something else", admin)
+        if again == "yes":
+            edit = ui.prompt_info("What would you like to edit?", admin, str = False, command = True, option = "ep")
+        else:
+            edit = "stop"
 
 def print_profile(prof, admin=False):
-    pass
+    ui.run_P_menu()
+    prin = ui.prompt_info("What would you like to print?", admin, str = False, command = True, option = "ep")
+    while prin[0] != "stop":
+        if prin[0] == "all":
+            prin = ['username', 'password', 'bio', 'post']
+        profDict = {"username": prof.username, "password":prof.password, "bio":prof.bio, "post":ui.index_posts(prof.get_posts())}
+        content = ''
+        for elm in prin:
+            content += ui.format_print(elm.capitalize(), profDict[elm])
+        print(content)
+
+        again = ui.yes_or_no("Would you like to print something else", admin)
+        if again == "yes":
+            prin = ui.prompt_info("What would you like to print?", admin, str = False, command = True, option = "ep")
+        else:
+            prin = ["stop"]
 
 def dsu_command(admin = False):
     profile = Profile()
@@ -131,8 +183,7 @@ def dsu_command(admin = False):
             edit_profile(profile, admin)
         elif manage == "print":
             print_profile(profile, admin)
-    else:
-        ui.aline("Going back to main...")
+    ui.aline("Going back to main...")
     
 
 def publish_command():

@@ -144,6 +144,9 @@ class Profile:
     def get_post_by_ID(self, id:int):
         return self._posts[id]
 
+    def get_filepath(self):
+        return self.filepath
+
     """
 
     save_profile accepts an existing dsu file to save the current instance of Profile 

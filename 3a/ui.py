@@ -1,5 +1,6 @@
 
 import ps
+from Profile import *
 
 ######################### List Functions #################################
 
@@ -64,6 +65,20 @@ def profile_info(admin=False):
         bio = None
     return user, pswd, bio
 
+def index_posts(info:list):
+    contents = ""
+    if len(info) > 0:
+        for index in range(len(info)):
+            post = Post(info[index])
+            entry = post.get_entry()["entry"]
+            contents += f'{index+1}. {entry}\n'
+    else:
+        contents = "\nYou have no posts."
+    return contents
+
+def format_print(type, info) -> str:
+    return f'\n{type}: {info}'
+
 ############################################### Functions ######################
 
 def prompt_directory(admin=False, dsu=False, prompt = "Please enter a directory"):
@@ -103,16 +118,16 @@ def prompt_info(prompt:str, admin = False, str = True, command = False, option =
     
     userInput = remove_quotations(userInput)
 
+    if command is True:
+        while command_exist(userInput[0], option) is False:
+            userInput = input(f"\n{prompt}:\n")
+
     if str is True:
         userInput = list_to_string(userInput)
         st = ""
         for elem in userInput:
             st += elem
         userInput = st
-    
-    if command is True:
-        while command_exist(userInput, option) is False:
-            userInput = input(f"\n{prompt}:\n")
 
     return userInput
     
@@ -132,9 +147,10 @@ def command_exist(comm: str, option:str):
     lList = ['all', 'files', 'name', 'ext', 'menu']
     rList = ['files', 'name', 'ext', 'menu']
     edpr = ['edit', 'print']
+    post = ['add', 'delete']
     epList = ['username', 'password', 'bio', 'post', 'all', 'menu']
 
-    opDict = {'main':mainList, 'list':lList, 'recur':rList, 'edpr': edpr, 'ep':epList}
+    opDict = {'main':mainList, 'list':lList, 'recur':rList, 'edpr': edpr, 'ep':epList, 'post': post}
 
     if comm.lower() in opDict[option]:
         return True
@@ -213,7 +229,7 @@ def run_R_menu():
 
 # DSU file / profile created/loaded. What would you like to do?
 def run_E_menu():
-    print(f"\n{'Edit Menu':-^40}",
+    print(f"\n{'Edit Menu':-^35}",
           "\n username | to edit username",
           "\n password | to edit password",
           "\n bio      | to edit bio",
@@ -223,7 +239,7 @@ def run_E_menu():
           )
 
 def run_P_menu():
-    print(f"\n{'Print Menu':-^40}",
+    print(f"\n{'Print Menu':-^35}",
           "\n username | to print username",
           "\n password | to print password",
           "\n bio      | to print bio",
