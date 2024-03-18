@@ -35,7 +35,7 @@ def recursive_contents(dirPath, admin=False):
 def list_command(admin = False):
     contents = ''
     ui.run_L_menu()
-    command = ui.prompt_info("What are you interested in seeing?", command=True, option="list")
+    command = ui.prompt_info("What are you interested in seeing?", command=True, option="list").lower()
     fPath = ui.prompt_info("Please enter a directory", admin)
     filePath = ps.path(fPath)
     while command != "q":
@@ -46,7 +46,7 @@ def list_command(admin = False):
             ui.run_L_menu()
             command = ui.prompt_info("What would you like to list next?", command=True, option="list")
 
-        if ui.command_exist( command, "list", admin ) is True:
+        if ui.command_exist( command, "list") is True:
             option = command
             if command == "all":
                 contents, option, searchInfo = recursive_contents(filePath, admin)

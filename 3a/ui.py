@@ -1,5 +1,46 @@
 
+import ps
 
+def prompt_files(admin = False):
+    return 'files'
+
+def prompt_name(admin = False):
+    name = prompt_info("What is the name of the file you want to find?", admin)
+    if "." not in name:
+        exAns = yes_or_no("Is there a specific extension you want to search?", admin)
+        if exAns == "yes":
+            ext = prompt_info("What is the extension you want to add?", admin)
+            name += ext
+        else:
+            name += ".*"
+    return name
+
+def prompt_ext(admin = False):
+    ext = prompt_info("What is the extension you want to find?", admin)
+    return ext
+
+def select_name(fileName, filePath):
+    if "*" in fileName:
+        name = fileName[:-2]
+        contents = ps.select_filestem(filePath, name)
+    else:
+        contents = ps.select_filename(filePath, fileName)
+    return contents
+
+def add_heading(option, contents, searchInfo):
+    messageDict = {'files': "Here are your files:",
+                   'name' : f"Here are your {searchInfo} files:",
+                   'ext' : f"Here are your files with {searchInfo}:",
+                   'empty' : f"You have no files with the {option} {searchInfo}."
+                   }
+    if len(contents) > 0:
+        message = messageDict[option] + "\n"
+    else:
+        message = messageDict['empty'] + "\n"
+    contents = message + contents
+    return contents
+
+################################################33
 
 def prompt_info(prompt:str, admin = False, str = True, command = False, option = ''):
     if admin is True:
@@ -21,7 +62,6 @@ def prompt_info(prompt:str, admin = False, str = True, command = False, option =
 
     return userInput
     
-
 def yes_or_no(prompt:str, admin=False):
     user = input(f'\n{prompt}? (yes/no):\n')
     while user.lower() not in ['yes', 'no']:
@@ -45,6 +85,15 @@ def command_exist(comm: str, option:str):
         return True
     print(f'{comm} does not exist')
     return False
+
+def list_to_string(info:list):
+    contents = ""
+    for elm in info:
+        if type(elm) is list:
+            contents += list_to_string(elm)
+        else:
+            contents += elm
+    return contents
 
 def remove_quotations(info:str):
     contents = []
