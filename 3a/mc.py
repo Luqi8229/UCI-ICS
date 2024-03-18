@@ -21,7 +21,8 @@ def recursive_contents(dirPath, admin=False):
         
         for dir in directories:
             con = repeatFunc[option](ps.path(dir), searchInfo)
-            content.append(con)
+            if con != []:
+                content.append(con)
     else:
         searchInfo = 'all'
         option = 'all'

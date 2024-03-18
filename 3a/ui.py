@@ -19,7 +19,7 @@ def prompt_ext(admin = False):
     ext = prompt_info("What is the extension you want to find?", admin)
     return ext
 
-def select_name(fileName, filePath):
+def select_name(filePath, fileName):
     if "*" in fileName:
         name = fileName[:-2]
         contents = ps.select_filestem(filePath, name)
@@ -28,16 +28,17 @@ def select_name(fileName, filePath):
     return contents
 
 def add_heading(option, contents, searchInfo):
-    messageDict = {'files': "Here are your files:",
+    messageDict = {'all': "Here are all your files and directories",
+                   'files': "Here are your files:",
                    'name' : f"Here are your {searchInfo} files:",
                    'ext' : f"Here are your files with {searchInfo}:",
-                   'empty' : f"You have no files with the {option} {searchInfo}."
+                   'empty' : f"You have no files with the {option} {searchInfo}"
                    }
     if len(contents) > 0:
         message = messageDict[option] + "\n"
     else:
         message = messageDict['empty'] + "\n"
-    contents = message + contents
+    contents = "\n" + message + contents
     return contents
 
 ################################################33
@@ -46,7 +47,7 @@ def prompt_info(prompt:str, admin = False, str = True, command = False, option =
     if admin is True:
         userInput = input()
     else:
-        userInput = input(f'{prompt}:\n')
+        userInput = input(f'\n{prompt}:\n')
 
     if len(userInput) == 0:
         aline("Input can not be empty.")
@@ -74,14 +75,14 @@ def aline(message:str, admin=False):
         print(message)
 
 def command_exist(comm: str, option:str):
-    mainList = ['list', 'dsu', 'publish', 'admin']
-    lList = ['all', 'files', 'name', 'ext']
-    rList = ['files', 'name', 'ext']
-    epList = ['username', 'password', 'bio', 'post', 'all']
+    mainList = ['list', 'dsu', 'publish', 'menu']
+    lList = ['all', 'files', 'name', 'ext', 'menu']
+    rList = ['files', 'name', 'ext', 'menu']
+    epList = ['username', 'password', 'bio', 'post', 'all', 'menu']
 
     opDict = {'main':mainList, 'list':lList, 'recur':rList, 'ep':epList}
 
-    if comm in opDict[option]:
+    if comm.lower() in opDict[option]:
         return True
     print(f'{comm} does not exist')
     return False
@@ -90,9 +91,9 @@ def list_to_string(info:list):
     contents = ""
     for elm in info:
         if type(elm) is list:
-            contents += list_to_string(elm)
+            contents += list_to_string(elm) + "\n"
         else:
-            contents += elm
+            contents += str(elm) + "\n"
     return contents
 
 def remove_quotations(info:str):
@@ -129,50 +130,50 @@ def remove_quotations(info:str):
 ##################### MENUS ##########################
 
 def run_M_menu():
-    print(f"{"Main Menu":-^50}",
-          "\n list | list contents from a directory",
-          "\n DSU | manage a DSU file",
+    print(f"{'Main Menu':-^50}",
+          "\n list    | list contents from a directory",
+          "\n DSU     | manage a DSU file",
           "\n publish | publish to the ICS 32 server",
-          "\n menu | to print this menu",
+          "\n menu    | to print this menu",
           "\n q | quit",
           )
     
 def run_L_menu():
-    print("\nListing options",
-          "\n all | to list all files and directories",
+    print(f"\n{'Listing options':-^40}",
+          "\n all   | to list all files and directories",
           "\n files | to list only files",
-          "\n name | to list a specific file name",
-          "\n ext | to list files under a specific extension",
-          "\n menu | to print this menu",
+          "\n name  | to list a specific file name",
+          "\n ext   | to list files under a specific extension",
+          "\n menu  | to print this menu",
           )
     
 def run_R_menu():
-    print("\nMenu",
+    print(f"\n{'Menu':-^40}",
           "\n files | list all files",
-          "\n name | list all files under specific file name",
-          "\n ext | list all specific extensions",
-          "\n menu | print this menu",
+          "\n name  | list all files under specific file name",
+          "\n ext   | list all specific extensions",
+          "\n menu  | print this menu",
           )
 
 # DSU file / profile created/loaded. What would you like to do?
 def run_E_menu():
-    print("\nEdit Menu",
+    print(f"\n{'Edit Menu':-^40}",
           "\n username | to edit username",
           "\n password | to edit password",
-          "\n bio | to edit bio",
-          "\n post | to edit your posts",
-          "\n all | to edit everything"
-          "\n menu | to print this menu",
+          "\n bio      | to edit bio",
+          "\n post     | to edit your posts",
+          "\n all      | to edit everything"
+          "\n menu     | to print this menu",
           )
 
 def run_P_menu():
-    print("\nPrint Menu",
+    print(f"\n{'Print Menu':-^40}",
           "\n username | to print username",
           "\n password | to print password",
-          "\n bio | to print bio",
-          "\n post | to print your posts",
-          "\n all | to print everything",
-          "\n menu | to print this menu",
+          "\n bio      | to print bio",
+          "\n post     | to print your posts",
+          "\n all      | to print everything",
+          "\n menu     | to print this menu",
           )
 
 
