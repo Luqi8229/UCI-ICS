@@ -37,7 +37,7 @@ def list_command(admin = False):
     contents = ''
     ui.run_L_menu()
     command = ui.prompt_info("What are you interested in seeing?", command=True, option="list").lower()
-    fPath = ui.prompt_info("Please enter a directory", admin)
+    fPath = ui.prompt_directory(admin)
     filePath = ps.path(fPath)
     while command != "q":
         option = ''
@@ -72,8 +72,61 @@ def list_command(admin = False):
             command = ui.prompt_info("What would you like to list next?", command=True, option="list")
     ui.aline("Going back to main...")
 
+################################ DSU #########################################
+
+def open_DSU_file(filePath, admin = False):
+    prof = Profile
+    try:
+        prof.load(str(filePath))
+        ui.aline(f'Opened Profile: {prof.username}')
+    except:
+        ui.aline("There is not a profile associated with this DSU file", admin)
+        newAns = ui.yes_or_no("Would you like to enter another directory?", admin)
+        if newAns == "yes":
+            filePath = ui.prompt_directory(admin, True)
+            prof = open_DSU_file(filePath, admin)
+        else:
+            createAns = ui.yes_or_no("Would you like to create a new Profile?", admin)
+            if createAns == "yes":
+                prof = create_DSU_file(admin)
+            else:
+                prof = None
+
+    return prof
+
+def create_DSU_file(admin=False):
+    prof = Profile
+    return prof
+
+def edit_DSU_file(prof, admin=False):
+    pass
+
+def print_DSU_file(prof, admin=False):
+    pass
+
 def dsu_command(admin = False):
     profile = Profile
+    existing = ui.yes_or_no("Do you have an existing DSU file", admin)
+
+    if existing == "yes":
+        ui.aline("That's great!", admin)
+        dsufile = ui.prompt_directory(admin, True)
+
+        ui.aline("Opening DSU file...")
+        profile = open_DSU_file(dsufile, admin)
+    else:
+        ui.aline("Alright then. Let's create a DSU file!", admin)
+        profile = create_DSU_file(admin)
+
+    if profile != None:
+        manage = ui.prompt_info("Would you like to edit or print your DSU file?", command = True, option='edpr').lower()
+        if manage == "edit":
+            edit_DSU_file(profile, admin)
+        elif manage == "print":
+            print_DSU_file(profile, admin)
+    else:
+        ui.aline("Going back to main...")
+    
 
 def publish_command():
     pass

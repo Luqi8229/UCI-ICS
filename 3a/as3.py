@@ -20,7 +20,6 @@ def runCommandLine(info:list, admin=False):
         elif command == "publish":
             mc.publish_command(admin)
     
-
 def main():
     print("Welcome!")
     ui.run_M_menu()
