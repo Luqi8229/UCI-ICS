@@ -2,7 +2,7 @@
 import mc, ui
 
 def runCommandLine(info:list, admin=False):
-    command = info[0].lower()
+    command = info.lower()
 
     while command == "menu":
         ui.run_M_menu()
@@ -23,12 +23,12 @@ def runCommandLine(info:list, admin=False):
 def main():
     print("Welcome!")
     ui.run_M_menu()
-    userInput = ui.prompt_info("What would you like to do", str = False, command = True, option = "main")
+    userInput = ui.prompt_info("What would you like to do", command = True, option = "main")
     admin = False
 
     while userInput[0].lower() != "q":
         admin = runCommandLine(userInput, admin)
-        userInput = ui.prompt_info("What would you like to do next?")
+        userInput = ui.prompt_info("What would you like to do next?", command = True, option = "main")
 
 if __name__ == "__main__":
     main()

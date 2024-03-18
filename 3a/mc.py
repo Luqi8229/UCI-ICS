@@ -63,7 +63,7 @@ def list_command(admin = False):
             ui.aline(f"{command} is not an option.")
 
         contents = ui.add_heading(option, contents, searchInfo)
-        print(contents)
+        print(contents) #prints the contents
         
         ans = ui.yes_or_no("Would you like to list something else")
         if ans == "no":
@@ -75,13 +75,13 @@ def list_command(admin = False):
 ################################ DSU #########################################
 
 def open_profile(filePath, admin = False):
-    prof = Profile
+    prof = Profile()
     try:
-        prof.load(str(filePath))
+        prof.load_profile(str(filePath))
         ui.aline(f'Opened Profile: {prof.username}')
     except:
         ui.aline("There is not a profile associated with this DSU file", admin)
-        newAns = ui.yes_or_no("Would you like to enter another directory?", admin)
+        newAns = ui.yes_or_no("Would you like to enter another directory", admin)
         if newAns == "yes":
             filePath = ui.prompt_directory(admin, True)
             prof = open_profile(filePath, admin)
@@ -95,14 +95,13 @@ def open_profile(filePath, admin = False):
     return prof
 
 def create_profile(admin=False):
-    dir = ui.prompt_folder(admin, True)
-    fileName = ui.propmt_info("Give a name for the file", admin)
-    filePath = ps.create_file(dir, fileName, dsu=True)
+    folder = ui.prompt_folder(admin)
+    filePath = ps.create_file(folder, admin, dsu=True)
 
     user, pwd, bio = ui.profile_info(admin)
-    profile = Profile(filePath = str(filePath), username = user, password = pwd, bio = bio)
+    profile = Profile(filepath = str(filePath), username = user, password = pwd, bio = bio)
     profile.save_profile(str(filePath))
-    
+
     ui.aline("Profile created", admin)
     return profile
 
@@ -113,7 +112,7 @@ def print_profile(prof, admin=False):
     pass
 
 def dsu_command(admin = False):
-    profile = Profile
+    profile = Profile()
     existing = ui.yes_or_no("Do you have an existing DSU file", admin)
 
     if existing == "yes":

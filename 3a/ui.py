@@ -45,11 +45,21 @@ def add_heading(option, contents, searchInfo):
 
 ############################### DSU Functions #############################3
 
-def profile_info(admin):
-    aline("Username and Password must be longer than 5 characters.")
+def profile_info(admin=False):
     user = prompt_info("Enter a username", admin)
+    while len(user) < 3:
+        aline("Username must be longer than 4 characters", admin)
+        user = prompt_info("Enter a username", admin)
+
     pswd = prompt_info("Enter a password", admin)
-    bio = prompt_info("Enter a bio (don't use ')\nPlease enter if you don't want to add one", admin)
+    while len(pswd) < 3:
+        aline("Password must be longer than 4 characters", admin)
+        pswd = prompt_info("Enter a password", admin)
+    
+    if admin is False:
+        bio = input("\nEnter a bio (don't use ')\nPlease enter if you don't want to add one")
+    else:
+        bio = input()
     if len(bio) == 0:
         bio = None
     return user, pswd, bio
@@ -94,13 +104,14 @@ def prompt_info(prompt:str, admin = False, str = True, command = False, option =
     userInput = remove_quotations(userInput)
 
     if str is True:
+        userInput = list_to_string(userInput)
         st = ""
         for elem in userInput:
             st += elem
         userInput = st
     
     if command is True:
-        while command_exist(command, option) is False:
+        while command_exist(userInput, option) is False:
             userInput = input(f"\n{prompt}:\n")
 
     return userInput
@@ -135,8 +146,10 @@ def list_to_string(info:list):
     for elm in info:
         if type(elm) is list:
             contents += list_to_string(elm) + "\n"
-        else:
+        elif elm != info[-1]:
             contents += str(elm) + "\n"
+        else:
+            contents += str(elm)
     return contents
 
 def remove_quotations(info:str):
