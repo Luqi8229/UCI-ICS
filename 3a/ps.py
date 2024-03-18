@@ -21,3 +21,23 @@ def select_extension(path, ext):
 def path(str):
     return Path(str)
 
+def pathExist(str):
+    p = path(str)
+    if p.exists() is True:
+        return True
+    print("Invalid directory.")
+    return False
+
+def isFolder(str):
+    p = path(str)
+    if p.isdir() is True:
+        return True
+    return False
+
+def create_file(folder, fileName, dsu=False):
+    if dsu is True and ".dsu" in fileName:
+        fileName += ".dsu"
+    filePath = Path(folder) / fileName
+    filePath.touch()
+    return filePath
+

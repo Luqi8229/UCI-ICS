@@ -1,6 +1,8 @@
 
 import ps
 
+######################### List Functions #################################
+
 def prompt_files(admin = False):
     return 'files'
 
@@ -41,7 +43,43 @@ def add_heading(option, contents, searchInfo):
     contents = "\n" + message + contents
     return contents
 
-################################################33
+############################### DSU Functions #############################3
+
+def profile_info(admin):
+    aline("Username and Password must be longer than 5 characters.")
+    user = prompt_info("Enter a username", admin)
+    pswd = prompt_info("Enter a password", admin)
+    bio = prompt_info("Enter a bio (don't use ')\nPlease enter if you don't want to add one", admin)
+    if len(bio) == 0:
+        bio = None
+    return user, pswd, bio
+
+############################################### Functions ######################
+
+def prompt_directory(admin=False, dsu=False, prompt = "Please enter a directory"):
+    dir = prompt_info(prompt, admin)
+    try:
+        path = ps.path(dir)
+        if dsu is True and dir.endswith(".dsu") is False:
+            dir = dir + ".dsu"
+            path = ps.path(dir)
+    except:
+        if dsu is True:
+            print("Invalid DSU file")
+        else:
+            print("Invalid directory")
+        
+        path = prompt_info("Please enter a valid directory", admin)
+        while ps.pathExist( ps.path(path) ) is False:
+            path = prompt_info("Please enter a valid directory", admin)
+    return path
+
+def prompt_folder(admin=False):
+    dir = prompt_info("Please enter the directory of the folder you want to save in", admin)
+    while ps.isFolder( ps.path(dir) ) is False:
+        aline("That is not a directory")
+        dir = prompt_info("Please enter a valid folder directory", admin)
+    return dir
 
 def prompt_info(prompt:str, admin = False, str = True, command = False, option = ''):
     if admin is True:
@@ -60,6 +98,10 @@ def prompt_info(prompt:str, admin = False, str = True, command = False, option =
         for elem in userInput:
             st += elem
         userInput = st
+    
+    if command is True:
+        while command_exist(command, option) is False:
+            userInput = input(f"\n{prompt}:\n")
 
     return userInput
     
@@ -78,9 +120,10 @@ def command_exist(comm: str, option:str):
     mainList = ['list', 'dsu', 'publish', 'menu']
     lList = ['all', 'files', 'name', 'ext', 'menu']
     rList = ['files', 'name', 'ext', 'menu']
+    edpr = ['edit', 'print']
     epList = ['username', 'password', 'bio', 'post', 'all', 'menu']
 
-    opDict = {'main':mainList, 'list':lList, 'recur':rList, 'ep':epList}
+    opDict = {'main':mainList, 'list':lList, 'recur':rList, 'edpr': edpr, 'ep':epList}
 
     if comm.lower() in opDict[option]:
         return True

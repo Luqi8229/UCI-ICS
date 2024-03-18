@@ -74,7 +74,7 @@ def list_command(admin = False):
 
 ################################ DSU #########################################
 
-def open_DSU_file(filePath, admin = False):
+def open_profile(filePath, admin = False):
     prof = Profile
     try:
         prof.load(str(filePath))
@@ -84,24 +84,32 @@ def open_DSU_file(filePath, admin = False):
         newAns = ui.yes_or_no("Would you like to enter another directory?", admin)
         if newAns == "yes":
             filePath = ui.prompt_directory(admin, True)
-            prof = open_DSU_file(filePath, admin)
+            prof = open_profile(filePath, admin)
         else:
             createAns = ui.yes_or_no("Would you like to create a new Profile?", admin)
             if createAns == "yes":
-                prof = create_DSU_file(admin)
+                prof = create_profile(admin)
             else:
                 prof = None
 
     return prof
 
-def create_DSU_file(admin=False):
-    prof = Profile
-    return prof
+def create_profile(admin=False):
+    dir = ui.prompt_folder(admin, True)
+    fileName = ui.propmt_info("Give a name for the file", admin)
+    filePath = ps.create_file(dir, fileName, dsu=True)
 
-def edit_DSU_file(prof, admin=False):
+    user, pwd, bio = ui.profile_info(admin)
+    profile = Profile(filePath = str(filePath), username = user, password = pwd, bio = bio)
+    profile.save_profile(str(filePath))
+    
+    ui.aline("Profile created", admin)
+    return profile
+
+def edit_profile(prof, admin=False):
     pass
 
-def print_DSU_file(prof, admin=False):
+def print_profile(prof, admin=False):
     pass
 
 def dsu_command(admin = False):
@@ -113,17 +121,17 @@ def dsu_command(admin = False):
         dsufile = ui.prompt_directory(admin, True)
 
         ui.aline("Opening DSU file...")
-        profile = open_DSU_file(dsufile, admin)
+        profile = open_profile(dsufile, admin)
     else:
         ui.aline("Alright then. Let's create a DSU file!", admin)
-        profile = create_DSU_file(admin)
+        profile = create_profile(admin)
 
     if profile != None:
         manage = ui.prompt_info("Would you like to edit or print your DSU file?", command = True, option='edpr').lower()
         if manage == "edit":
-            edit_DSU_file(profile, admin)
+            edit_profile(profile, admin)
         elif manage == "print":
-            print_DSU_file(profile, admin)
+            print_profile(profile, admin)
     else:
         ui.aline("Going back to main...")
     
