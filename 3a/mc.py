@@ -1,5 +1,5 @@
 
-import ps, ui
+import ps, ui, ds_client
 from Profile import *
 
 def recursive_contents(dirPath, admin=False):
@@ -74,52 +74,6 @@ def list_command(admin = False):
 
 ################################ DSU #########################################
 
-def open_profile(filePath, admin = False):
-    prof = Profile()
-    try:
-        prof.load_profile(str(filePath))
-        ui.aline(f'Opened Profile: {prof.username}')
-    except:
-        ui.aline("There is not a profile associated with this DSU file", admin)
-        newAns = ui.yes_or_no("Would you like to enter another directory", admin)
-        if newAns == "yes":
-            filePath = ui.prompt_directory(admin, True)
-            prof = open_profile(filePath, admin)
-        else:
-            createAns = ui.yes_or_no("Would you like to create a new Profile?", admin)
-            if createAns == "yes":
-                prof = create_profile(admin)
-            else:
-                prof = None
-
-    return prof
-
-def create_profile(admin=False):
-    folder = ui.prompt_folder(admin)
-    filePath = ps.create_file(folder, admin, dsu=True)
-
-    user, pwd, bio = ui.profile_info(admin)
-    profile = Profile(filepath = str(filePath), username = user, password = pwd, bio = bio)
-    profile.save_profile(str(filePath))
-
-    ui.aline("Profile created", admin)
-    return profile
-
-def edit_posts(prof, admin=False):
-    option = ui.prompt_info("Would you like to add or delete posts?", admin)
-    if option == "add":
-        entry = ui.prompt_info("Enter your new post?", admin)
-        newPost = Post(entry)
-        prof.add_post(newPost)
-        ui.aline("New post added!", admin)
-    elif option == "delete":
-        posts = ui.index_posts(prof.get_posts())
-        print(posts)
-        if posts != "You have no posts.":
-            index = ui.prompt_info("Which post would you like to delete", admin)
-            deleted = prof.del_post(int(index)-1)
-            print("Deleted: ", deleted)
-
 def edit_profile(prof, admin=False):
     ui.run_E_menu()
     edit = ui.prompt_info("What would you like to edit?", admin, str = False, command = True, option = "ep")
@@ -141,9 +95,9 @@ def edit_profile(prof, admin=False):
 
         again = ui.yes_or_no("Would you like to edit something else", admin)
         if again == "yes":
-            edit = ui.prompt_info("What would you like to edit?", admin, str = False, command = True, option = "ep")
+            edit = list(ui.prompt_info("What would you like to edit?", admin, str = False, command = True, option = "ep"))
         else:
-            edit = "stop"
+            edit = ["stop"]
 
 def print_profile(prof, admin=False):
     ui.run_P_menu()
@@ -164,28 +118,21 @@ def print_profile(prof, admin=False):
             prin = ["stop"]
 
 def dsu_command(admin = False):
-    profile = Profile()
-    existing = ui.yes_or_no("Do you have an existing DSU file", admin)
-
-    if existing == "yes":
-        ui.aline("That's great!", admin)
-        dsufile = ui.prompt_directory(admin, True)
-
-        ui.aline("Opening DSU file...")
-        profile = open_profile(dsufile, admin)
-    else:
-        ui.aline("Alright then. Let's create a DSU file!", admin)
-        profile = create_profile(admin)
-
+    profile = ui.choose_profile(admin)
     if profile != None:
-        manage = ui.prompt_info("Would you like to edit or print your DSU file?", command = True, option='edpr').lower()
+        manage = ui.prompt_info("Would you like to edit or print your DSU file?", admin, command = True, option='edpr').lower()
         if manage == "edit":
             edit_profile(profile, admin)
         elif manage == "print":
             print_profile(profile, admin)
     ui.aline("Going back to main...")
+
+############################# Publish ##############################3
+
+def publish_command(admin):
+    #address 168.235.86.101
+    port = 3021
+    if ds_client.send(None, port, None, None, None, None) is True:
+        ui.aline("Closing connection...")
+    ui.aline("Going back to main...")
     
-
-def publish_command():
-    pass
-

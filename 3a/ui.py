@@ -46,6 +46,106 @@ def add_heading(option, contents, searchInfo):
 
 ############################### DSU Functions #############################3
 
+def edit_posts(prof, admin=False):
+    option = prompt_info("Would you like to add or delete posts?", admin)
+    if option == "add":
+        entry = prompt_info("Enter your new post?", admin)
+        newPost = Post(entry)
+        prof.add_post(newPost)
+        aline("New post added!", admin)
+    elif option == "delete":
+        posts = index_posts(prof.get_posts())
+        print(posts)
+        if posts != "You have no posts.":
+            index = prompt_info("Which post would you like to delete", admin)
+            deleted = prof.del_post(int(index)-1)
+            print("Deleted: ", deleted)
+
+
+def open_profile(filePath, admin = False):
+    prof = Profile()
+    try:
+        prof.load_profile(str(filePath))
+        aline(f'Opened Profile: {prof.username}')
+    except:
+        aline("There is not a profile associated with this DSU file", admin)
+        newAns = yes_or_no("Would you like to enter another directory", admin)
+        if newAns == "yes":
+            filePath = prompt_directory(admin, True)
+            prof = open_profile(filePath, admin)
+        else:
+            createAns = yes_or_no("Would you like to create a new Profile?", admin)
+            if createAns == "yes":
+                prof = create_profile(admin)
+            else:
+                prof = None
+    return prof
+
+def create_profile(admin=False):
+    folder = prompt_folder(admin)
+    filePath = ps.create_file(folder, admin, dsu=True)
+
+    user, pwd, bio = profile_info(admin)
+    profile = Profile(filepath = str(filePath), username = user, password = pwd, bio = bio)
+    profile.save_profile(str(filePath))
+
+    aline("Profile created", admin)
+    return profile
+
+def choose_profile(admin=False):
+    profile = Profile()
+    existing = yes_or_no("Do you have an existing DSU file", admin)
+
+    if existing == "yes":
+        aline("That's great!", admin)
+        dsufile = prompt_directory(admin, True)
+
+        aline("Opening DSU file...")
+        profile = open_profile(dsufile, admin)
+    else:
+        aline("Alright then. Let's create a DSU file!", admin)
+        profile = create_profile(admin)
+    return profile
+    
+def choose_post(profile, admin=False):
+    publish = True
+
+    print(index_posts(profile._posts))
+    existPost = ''
+    if len(profile._posts) > 0:
+        existPost = yes_or_no("Would you liket to post an existing post", admin)
+    if len(profile._posts) == 0 or existPost == "no":
+        newPost = yes_or_no("Would you like to make a new post", admin)
+        if newPost == "yes":
+            create_post(profile, admin)
+        else:
+            publish = False
+
+    if publish is True:
+        print(index_posts(profile._posts))
+        index = int( prompt_info("Which post would you like to publish?", admin, str=True) )
+        while index not in range(len(profile._posts)+1):
+            index = int( prompt_info("Invalid index. Enter a number listed", admin, str=True) )
+        postTP = profile.get_post_by_ID(index-1)
+        return postTP
+    return None
+
+def create_post(profile, admin=False, repeating = False):
+    entry = input("\nEnter your new post:\n")
+    profile.add_post(Post(entry))
+
+    aline("New post added!", admin)
+    profile.save_profile(str(profile.filepath))
+    
+    if repeating is False:
+        continue_create_post(profile, admin)
+
+def continue_create_post(profile, admin=False):
+    cont = yes_or_no("Would you like to create another post", admin)
+    while cont != "no":
+        create_post(profile, admin, True)
+        cont = yes_or_no("Would you like to create another post", admin)
+
 def profile_info(admin=False):
     user = prompt_info("Enter a username", admin)
     while len(user) < 3:
