@@ -98,6 +98,7 @@ def edit_profile(prof, admin=False):
             edit = list(ui.prompt_info("What would you like to edit?", admin, str = False, command = True, option = "ep"))
         else:
             edit = ["stop"]
+    ui.aline("Returning to DSU command...")
 
 def print_profile(prof, admin=False):
     ui.run_P_menu()
@@ -116,15 +117,23 @@ def print_profile(prof, admin=False):
             prin = ui.prompt_info("What would you like to print?", admin, str = False, command = True, option = "ep")
         else:
             prin = ["stop"]
+    ui.aline("Returning to DSU command...")
 
 def dsu_command(admin = False):
     profile = ui.choose_profile(admin)
     if profile != None:
         manage = ui.prompt_info("Would you like to edit or print your DSU file?", admin, command = True, option='edpr').lower()
-        if manage == "edit":
-            edit_profile(profile, admin)
-        elif manage == "print":
-            print_profile(profile, admin)
+        while manage.lower() != "no":
+            if manage == "edit":
+                edit_profile(profile, admin)
+            elif manage == "print":
+                print_profile(profile, admin)
+            
+            manageAns = ui.yes_or_no("Would you like to edit or print something else", admin)
+            if manageAns == "yes":
+                manage = ui.prompt_info("Would you like to edit or print?", admin, command=True, option="edpr").lower()
+            else:
+                manage = "no"
     ui.aline("Going back to main...")
 
 ############################# Publish ##############################3

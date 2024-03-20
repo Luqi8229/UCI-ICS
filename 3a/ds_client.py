@@ -14,7 +14,8 @@ def send(profile, admin):
   :param bio: Optional, a bio for the user.
   '''
   ############# Connecting to the Server ##################################
-  server = profile.dsuserver
+  # server = profile.dsuserver
+  server = "168.235.86.101"
   if server is None:
     server = ui.prompt_info("What is the server you want to connect to?", str=True)
   port = 3021
@@ -27,10 +28,14 @@ def send(profile, admin):
   #################################################3
 
   if resType == "ok":
-    publishAns = ui.yes_or_no("Would you like to publish your profile")
+    # publishAns = ui.yes_or_no("Would you like to publish your profile")
 
-    if publishAns == "yes":
-      post_option(client, resToken, profile)
+    # if publishAns == "yes":
+    #   post_option(client, resToken, profile)
+
+    messAns = ui.yes_or_no("Would you like to go into your messages")
+    if messAns == "yes":
+      send_message(client, resToken)
     
     client.close()
     return True
@@ -38,6 +43,27 @@ def send(profile, admin):
   client.close()
   
   return False
+
+############################# End of Send #############################
+
+def send_message(client, token, repeating=False):
+  all = ds_protocol.request_message(client, token, "all")
+  new = ds_protocol.request_message(client, token, "new")
+  print("All messages: ", all)
+  print("New messages: ", new)
+  
+  if repeating is False:
+    sendAns = ui.yes_or_no("Would you like to send a message")
+    while sendAns == "yes":
+      recipient = ui.get_entry("Who is your recipient?")
+      message = ui.get_entry("What is your message?")
+      ds_protocol.send_message(client, token, message, recipient, str(time.time()))
+
+      all = ds_protocol.request_message(client, token, "all")
+      print("All messages: ", all)
+      sendAns = ui.yes_or_no("Would you like to send another message")
+  ui.aline("Returning to publish command...")
+
 
 def post_option(client, token, profile, repeating = False):
   ui.run_post_menu()
@@ -54,7 +80,6 @@ def post_option(client, token, profile, repeating = False):
       post_option(client, token, profile, True)
     ui.aline("Returing to publish command...")
   
-
 def post_bio(client, token, profile):
   if profile.bio != None:
     ds_protocol.send_bio(client, token, profile.bio, str(time.time()))

@@ -49,10 +49,7 @@ def add_heading(option, contents, searchInfo):
 def edit_posts(prof, admin=False):
     option = prompt_info("Would you like to add or delete posts?", admin)
     if option == "add":
-        entry = prompt_info("Enter your new post?", admin)
-        newPost = Post(entry)
-        prof.add_post(newPost)
-        aline("New post added!", admin)
+        create_post(prof, admin)
     elif option == "delete":
         posts = index_posts(prof.get_posts())
         print(posts)
@@ -163,7 +160,7 @@ def profile_info(admin=False):
         pswd = prompt_info("Enter a password", admin)
     
     if admin is False:
-        bio = input("\nEnter a bio (don't use ')\nPlease enter if you don't want to add one")
+        bio = input("\nEnter a bio (don't use ')\nPlease enter if you don't want to add one:\n")
     else:
         bio = input()
     if len(bio) == 0:
