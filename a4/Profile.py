@@ -94,14 +94,16 @@ class Profile:
 
     """
 
-    def __init__(self, dsuserver=None, filepath=None, username=None, password=None, bio=None, posts=[]):
+    def __init__(self, dsuserver=None, filepath=None, username=None, password=None, bio=None, posts=[], friends=[]):
         self.dsuserver = dsuserver # REQUIRED
         self.filepath = filepath
         self.username = username # REQUIRED
         self.password = password # REQUIRED
-        self.bio = bio            # OPTIONAL
-        self._posts = posts         # OPTIONAL
-    
+        self.bio = bio # OPTIONAL
+        self._posts = posts # OPTIONAL
+        self.friends = friends
+
+
     """
 
     add_post accepts a Post object as parameter and appends it to the posts list. Posts 
@@ -143,10 +145,6 @@ class Profile:
     
     def get_post_by_ID(self, id:int):
         return self._posts[id]
-
-    def get_filepath(self):
-        return self.filepath
-
     """
 
     save_profile accepts an existing dsu file to save the current instance of Profile 
@@ -197,6 +195,7 @@ class Profile:
                 self.password = obj['password']
                 self.dsuserver = obj['dsuserver']
                 self.bio = obj['bio']
+                self.friends = obj['friends']
                 self._posts = []
                 for post_obj in obj['_posts']:
                     post = Post(post_obj['entry'], post_obj['timestamp'])

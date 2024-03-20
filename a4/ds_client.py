@@ -1,5 +1,6 @@
 
-import time, ui, mc, ds_protocol
+import time, ui, ds_protocol
+from ds_messenger import *
 from Profile import *
 
 def send(profile, admin):
@@ -18,6 +19,8 @@ def send(profile, admin):
   server = "168.235.86.101"
   if server is None:
     server = ui.prompt_info("What is the server you want to connect to?", str=True)
+    profile.dsuserver = server
+    profile.save_profile(str(profile.filepath))
   port = 3021
   username = profile.username
   password = profile.password
@@ -35,7 +38,10 @@ def send(profile, admin):
 
     messAns = ui.yes_or_no("Would you like to go into your messages")
     if messAns == "yes":
-      send_message(client, resToken)
+      user = DirectMessenger(server, username, password)
+      user.client = client
+      user.token = resToken
+      send_message(client, resToken, user)
     
     client.close()
     return True
@@ -46,9 +52,9 @@ def send(profile, admin):
 
 ############################# End of Send #############################
 
-def send_message(client, token, repeating=False):
-  all = ds_protocol.request_message(client, token, "all")
-  new = ds_protocol.request_message(client, token, "new")
+def send_message(client, token, user, repeating=False):
+  all = user.retrieve_all()
+  new = user.retrieve_new()
   print("All messages: ", all)
   print("New messages: ", new)
   
@@ -57,9 +63,9 @@ def send_message(client, token, repeating=False):
     while sendAns == "yes":
       recipient = ui.get_entry("Who is your recipient?")
       message = ui.get_entry("What is your message?")
-      ds_protocol.send_message(client, token, message, recipient, str(time.time()))
+      user.send(message, recipient)
 
-      all = ds_protocol.request_message(client, token, "all")
+      all = user.retrieve_all()
       print("All messages: ", all)
       sendAns = ui.yes_or_no("Would you like to send another message")
   ui.aline("Returning to publish command...")

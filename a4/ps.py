@@ -1,5 +1,4 @@
 
-from ui import prompt_info, aline
 from pathlib import Path
 
 def file_list(path, name=''):
@@ -36,12 +35,12 @@ def isFolder(str):
     return False
 
 def create_file(folder, admin = False, dsu=False):
-    fileName = prompt_info("Give a name for the file", admin)
+    fileName = input("\nGive a name for the file:\n")
     if dsu is True and ".dsu" not in fileName:
         fileName += ".dsu"
     filePath = Path(folder) / fileName
     if filePath.exists():
-        aline(f"DSU file with {fileName} already exists")
+        print(f"DSU file with {fileName} already exists")
         create_file(folder, admin, dsu)
     filePath.touch()
     return filePath

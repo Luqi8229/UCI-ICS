@@ -61,20 +61,4 @@ def send_post(client, token, message:str, timeStamp:str):
   responseMSG = client.recv(2048).decode("utf-8")
   print(extract_json_single(responseMSG, "message"))
 
-def send_message(client, token, entry:str, recipient:str, timeStamp):
-  send_msg = '{"token": "' + token + '", "directmessage": {"entry": "' + entry + '","recipient":"' + recipient + '", "timestamp": "' + timeStamp + '"}}'
-  client.send(send_msg.encode("utf-8"))
-
-  responseMSG = client.recv(2048).decode("utf-8")
-  print(extract_json_single(responseMSG, "message"))
-
-def request_message(client, token, option=''):
-  # request unread and new messages
-  send_func = '{"token": "' + token + '", "directmessage": "' + option + '"}'
-  client.send(send_func.encode("utf-8"))
-
-  responseMSG = client.recv(2048).decode("utf-8")
-  history = extract_json_single(responseMSG, "messages")
-  return history
-
 
