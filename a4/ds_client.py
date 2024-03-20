@@ -64,7 +64,6 @@ def send_message(client, token, repeating=False):
       sendAns = ui.yes_or_no("Would you like to send another message")
   ui.aline("Returning to publish command...")
 
-
 def post_option(client, token, profile, repeating = False):
   ui.run_post_menu()
   option = ui.prompt_info("What would you like to post", str=False, command=True, option = "post")
