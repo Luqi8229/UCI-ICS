@@ -82,7 +82,7 @@ def edit_profile(prof, admin=False):
             edit = ['username', 'password', 'bio', 'post']
         for elm in edit:
             if elm == "post":
-                edit_posts(prof, admin)
+                ui.edit_posts(prof, admin)
             else:
                 change = ui.prompt_info(f"Enter your new {elm}", admin)
                 if elm == "username":
