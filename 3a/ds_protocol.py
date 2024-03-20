@@ -55,8 +55,26 @@ def send_bio(client, token, bio, timeStamp):
   print(extract_json_single(repsonseBIO, "message"))
 
 def send_post(client, token, message:str, timeStamp:str):
-  send_msg = '{"token": "' + token + '", "post": {"entry": "' + message + '", "timestamp": "' + timeStamp + '"}}'
+  send_post = '{"token": "' + token + '", "post": {"entry": "' + message + '", "timestamp": "' + timeStamp + '"}}'
+  client.send(send_post.encode("utf-8"))
+
+  responseMSG = client.recv(2048).decode("utf-8")
+  print(extract_json_single(responseMSG, "message"))
+
+def send_message(client, token, entry:str, recipient:str, timeStamp):
+  send_msg = '{"token": "' + token + '", "directmessage": {"entry": "' + entry + '","recipient":"' + recipient + '", "timestamp": "' + timeStamp + '"}}'
   client.send(send_msg.encode("utf-8"))
 
   responseMSG = client.recv(2048).decode("utf-8")
   print(extract_json_single(responseMSG, "message"))
+
+def request_func(client, token, option=''):
+  # request unread and new messages
+  send_func = '{"token": "' + token + '", "directmessage": "' + option + '"}'
+  client.send(send_func.encode("utf-8"))
+
+  responseMSG = client.recv(2048).decode("utf-8")
+  history = extract_json_single(responseMSG, "message")
+  print(history)
+
+

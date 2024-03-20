@@ -58,8 +58,9 @@ def edit_posts(prof, admin=False):
         print(posts)
         if posts != "You have no posts.":
             index = prompt_info("Which post would you like to delete", admin)
+            postTD = prof.get_post_by_ID(int(index)-1)
             deleted = prof.del_post(int(index)-1)
-            print("Deleted: ", deleted)
+            print("Deleted: ", postTD)
 
 
 def open_profile(filePath, admin = False):
@@ -113,7 +114,7 @@ def choose_post(profile, admin=False):
     print(index_posts(profile._posts))
     existPost = ''
     if len(profile._posts) > 0:
-        existPost = yes_or_no("Would you liket to post an existing post", admin)
+        existPost = yes_or_no("Would you like to post an existing post", admin)
     if len(profile._posts) == 0 or existPost == "no":
         newPost = yes_or_no("Would you like to make a new post", admin)
         if newPost == "yes":
@@ -130,8 +131,12 @@ def choose_post(profile, admin=False):
         return postTP
     return None
 
+def get_entry(prompt:str, admin=False):
+    entry = input(f"\n{prompt}:\n")
+    return entry
+
 def create_post(profile, admin=False, repeating = False):
-    entry = input("\nEnter your new post:\n")
+    entry = get_entry("Enter your new post", admin)
     profile.add_post(Post(entry))
 
     aline("New post added!", admin)
@@ -243,12 +248,13 @@ def aline(message:str, admin=False):
         print(message)
 
 def command_exist(comm: str, option:str):
-    mainList = ['list', 'dsu', 'publish', 'menu']
+    mainList = ['list', 'dsu', 'publish', 'menu', 'q']
     lList = ['all', 'files', 'name', 'ext', 'menu']
     rList = ['files', 'name', 'ext', 'menu']
     edpr = ['edit', 'print']
     post = ['add', 'delete']
     epList = ['username', 'password', 'bio', 'post', 'all', 'menu']
+    post = ['bio', 'posts', 'all']
 
     opDict = {'main':mainList, 'list':lList, 'recur':rList, 'edpr': edpr, 'ep':epList, 'post': post}
 
@@ -348,4 +354,9 @@ def run_P_menu():
           "\n menu     | to print this menu",
           )
 
+def run_post_menu():
+    print(f"\n{'Post Menu':-^30}",
+          "\n bio | to publish  your bio",
+          "\n posts | to publish your posts",
+          )
 

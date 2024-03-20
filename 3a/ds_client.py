@@ -2,7 +2,7 @@
 import time, ui, mc, ds_protocol
 from Profile import *
 
-def send(server:str, port:int, username:str, password:str, message:str, bio:str=None):
+def send(profile, admin):
   '''
   The send function joins a ds server and sends a message, bio, or both
 
@@ -13,33 +13,24 @@ def send(server:str, port:int, username:str, password:str, message:str, bio:str=
   :param message: The message to be sent to the server.
   :param bio: Optional, a bio for the user.
   '''
-
-  profile = ui.choose_profile()
-  
+  ############# Connecting to the Server ##################################
   server = profile.dsuserver
   if server is None:
     server = ui.prompt_info("What is the server you want to connect to?", str=True)
+  port = 3021
   username = profile.username
   password = profile.password
-  bio = profile.bio
 
   client, resType, resMess, resToken = ds_protocol.join(username, password, server, port)
   print("\n" + resMess)
 
+  #################################################3
+
   if resType == "ok":
-    timeStamp = str(time.time()) #for empty Profile
+    publishAns = ui.yes_or_no("Would you like to publish your profile")
 
-    if bio != None:
-      publishBio = ui.yes_or_no(f"Would you like to publish your bio [{bio}]")
-      if publishBio.lower() == "yes":
-        ds_protocol.send_bio(client, resToken, bio, timeStamp)
-
-    post = ui.choose_post(profile)
-    if post != None:
-      message = str(post.get_entry())
-      timeStamp = str(post.get_time())
-      ds_protocol.send_post(client, resToken, message, timeStamp)
-      continue_posting(client, resToken, profile)
+    if publishAns == "yes":
+      post_option(client, resToken, profile)
     
     client.close()
     return True
@@ -47,6 +38,43 @@ def send(server:str, port:int, username:str, password:str, message:str, bio:str=
   client.close()
   
   return False
+
+def post_option(client, token, profile, repeating = False):
+  ui.run_post_menu()
+  option = ui.prompt_info("What would you like to post", str=False, command=True, option = "post")
+  for elm in option:
+    if elm == "bio":
+      post_bio(client, token, profile)
+    elif elm == "posts":
+      post_post(client, token, profile)
+  
+  if repeating is False:
+    againAns = ui.yes_or_no("Would you like to post something else")
+    if againAns == "yes":
+      post_option(client, token, profile, True)
+    ui.aline("Returing to publish command...")
+  
+
+def post_bio(client, token, profile):
+  if profile.bio != None:
+    ds_protocol.send_bio(client, token, profile.bio, str(time.time()))
+  else:
+    ui.aline("Your bio is empty.")
+    createAns = ui.yes_or_no("Would you like to add a bio")
+    if createAns == "yes":
+      profile.bio = ui.get_entry("Please enter your new bio")
+      profile.save_profile(str(profile.filepath))
+  ui.aline("Returning to post command...")
+
+def post_post(client, token, profile):
+  post = ui.choose_post(profile)
+  if post != None:
+    message = str(post.get_entry())
+    timeStamp = str(post.get_time())
+    ds_protocol.send_post(client, token, message, timeStamp)
+    continue_posting(client, token, profile)
+  ui.aline("Returning to post command...")
+
 
 def continue_posting(client, token, profile):
   postAnother = ui.yes_or_no("Would you like to post another")
