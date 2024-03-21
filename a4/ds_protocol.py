@@ -3,7 +3,6 @@ import socket
 from collections import namedtuple
 
 # Namedtuple to hold the values retrieved from json messages.
-# TODO: update this named tuple to use DSP protocol keys
 DataTuple = namedtuple('DataTuple', ['type', 'message'])
 
 def extract_json_default(json_msg:str) -> DataTuple:
@@ -28,17 +27,17 @@ def extract_json_single(json_msg:str, type:str):
 
   return type
 
-def join(username:str, password:str, server:str, port:int):
-  CODE = "utf-8"
-  join_msg = '{"join": {"username": "' + username + '", "password": "' + password + '", "token":""}}'
-  server_address = (server, port)
-
+def get_token_client(username, password, server):
   client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-  client_socket.connect(server_address)
+  client_socket.connect((server, 3021))
 
-  client_socket.send(join_msg.encode(CODE))
-  responseConnect = client_socket.recv(2048).decode(CODE)
-  
+  join_msg = json.dumps({"join": {"username":username, "password":password, "token": ""}})
+  client_socket.send(join_msg.encode("utf-8"))
+  responseConnect = client_socket.recv(2048).decode("utf-8")
+  return client_socket, responseConnect
+
+def join(username:str, password:str, server:str, port:int):
+  client_socket, responseConnect = get_token_client(username, password, server)
   resType, resMess= extract_json_default(responseConnect)
 
   resToken = ""
@@ -60,5 +59,3 @@ def send_post(client, token, message:str, timeStamp:str):
 
   responseMSG = client.recv(2048).decode("utf-8")
   print(extract_json_single(responseMSG, "message"))
-
-

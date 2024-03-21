@@ -39,6 +39,7 @@ def send(profile, admin):
     messAns = ui.yes_or_no("Would you like to go into your messages")
     if messAns == "yes":
       user = DirectMessenger(server, username, password)
+      user.profile = profile
       user.client = client
       user.token = resToken
       send_message(client, resToken, user)
@@ -65,7 +66,7 @@ def send_message(client, token, user, repeating=False):
       message = ui.get_entry("What is your message?")
       user.send(message, recipient)
 
-      all = user.retrieve_all()
+      all = user.history
       print("All messages: ", all)
       sendAns = ui.yes_or_no("Would you like to send another message")
   ui.aline("Returning to publish command...")

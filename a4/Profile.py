@@ -94,7 +94,7 @@ class Profile:
 
     """
 
-    def __init__(self, dsuserver=None, filepath=None, username=None, password=None, bio=None, posts=[], friends=[]):
+    def __init__(self, dsuserver=None, filepath=None, username=None, password=None, bio=None, posts=[], friends=[], history=[]):
         self.dsuserver = dsuserver # REQUIRED
         self.filepath = filepath
         self.username = username # REQUIRED
@@ -102,7 +102,10 @@ class Profile:
         self.bio = bio # OPTIONAL
         self._posts = posts # OPTIONAL
         self.friends = friends
+        self.history = history
 
+    def add_friend(self, user):
+        self.friends.append(user)
 
     """
 
@@ -196,6 +199,10 @@ class Profile:
                 self.dsuserver = obj['dsuserver']
                 self.bio = obj['bio']
                 self.friends = obj['friends']
+                self.history = []
+                for record in obj['history']:
+                    if len(record) != 0:
+                        self.history.append(record)
                 self._posts = []
                 for post_obj in obj['_posts']:
                     post = Post(post_obj['entry'], post_obj['timestamp'])
