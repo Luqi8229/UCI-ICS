@@ -161,7 +161,6 @@ class MainApp(tk.Frame):
 
     def send_message(self):
         message = self.body.get_text_entry()
-        print(message)
         if message.strip() != " " and self.recipient != None:
             if self.directMessenger.send(message, self.recipient) is True:
                 self.body.insert_user_message(message)
@@ -169,12 +168,14 @@ class MainApp(tk.Frame):
                 direct_message = DirectMessage("to", self.recipient, message, str(time.time()))
                 self.profile.load_profile(self.filepath)
                 self.profile.add_message(str(self.recipient), direct_message)
-                print(self.filepath)
                 self.profile.save_profile(str(self.filepath))
 
     def add_contact(self):
         contact = tk.simpledialog.askstring("Add Contact", "Enter the name of your new contact")
         self.body.insert_contact(contact)
+        self.profile.load_profile(str(self.filepath))
+        self.profile.add_friend(contact)
+        self.profile.save_profile(str(self.filepath))
 
     def print_messages(self, msg):
         print(f'From {msg.recipient} "{msg.message}" @ {msg.timestamp}')

@@ -109,11 +109,10 @@ class Profile:
         self.friends.append(contact)
 
     def add_message(self, contact:str, message: DirectMessage) -> None:
-        print(self.friends)
         if contact not in self.friends:
-            print("not a friend")
             self.add_friend(contact)
         self.history.append(message)
+        print(self.history)
 
     """
 
