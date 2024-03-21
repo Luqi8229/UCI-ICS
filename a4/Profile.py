@@ -16,6 +16,7 @@
 #
 import json, time
 from pathlib import Path
+from ds_messenger import DirectMessage
 
 
 """
@@ -101,11 +102,18 @@ class Profile:
         self.password = password # REQUIRED
         self.bio = bio # OPTIONAL
         self._posts = posts # OPTIONAL
-        self.friends = friends
-        self.history = history
+        self.friends = []
+        self.history = []
+    
+    def add_friend(self, contact):
+        self.friends.append(contact)
 
-    def add_friend(self, user):
-        self.friends.append(user)
+    def add_message(self, contact:str, message: DirectMessage) -> None:
+        print(self.friends)
+        if contact not in self.friends:
+            print("not a friend")
+            self.add_friend(contact)
+        self.history.append(message)
 
     """
 

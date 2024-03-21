@@ -1,5 +1,5 @@
 
-import mc, ui
+import mc, ui, gui
 
 def runCommandLine(info:list, admin=False):
     command = info.lower()
@@ -14,7 +14,7 @@ def runCommandLine(info:list, admin=False):
     
     if ui.command_exist(command, "main") is True:
         if command == "list":
-            mc.list_command(admin)
+            mc.list_command(admin)  
         elif command == "dsu":
             mc.dsu_command(admin)
         elif command == "publish":
@@ -22,6 +22,7 @@ def runCommandLine(info:list, admin=False):
     
 def main():
     print("Welcome!")
+    # gui.main()
     ui.run_M_menu()
     userInput = ui.prompt_info("What would you like to do", command = True, option = "main")
     admin = False

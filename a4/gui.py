@@ -1,6 +1,10 @@
 import tkinter as tk
-from tkinter import ttk, filedialog
+from tkinter import ttk, filedialog, messagebox
 from typing import Text
+from ds_messenger import DirectMessenger, DirectMessage
+from Profile import *
+import time
+from pathlib import Path
 
 class Body(tk.Frame):
     def __init__(self, root, recipient_selected_callback = None):
@@ -10,6 +14,7 @@ class Body(tk.Frame):
         self._selected_callback = recipient_selected_callback
         self._draw() #packs the widgets
 
+    #select contact
     def node_select(self, event):
         index = int(self.posts_tree.selection()[0])
         entry = self._contacts[index] #friend list
@@ -83,13 +88,12 @@ class Footer(tk.Frame):
         self._draw()
     
     def send_click(self):
+        print("send_click", self._send_callback)
         if self._send_callback is not None:
             self._send_callback()
 
     def _draw(self):
-        save_button = tk.Button(master=self, text="Send", width=20)
-
-        #TO DO: configure the button to bind its click to the send_click() function
+        save_button = tk.Button(master=self, text="Send", width=20, command=self.send_click)
         save_button.pack(fill=tk.BOTH, side=tk.RIGHT, padx=5, pady=5)
 
         self.footer_label = tk.Label(master=self, text="Ready.")
@@ -98,11 +102,12 @@ class Footer(tk.Frame):
 
 
 class NewContactDialog(tk.simpledialog.Dialog):
-    def __init__(self, root, title=None, user=None, pwd=None, server=None):
+    def __init__(self, root, title=None, user=None, pwd=None, server=None, filepath=None):
         self.root = root
         self.server = server
         self.user = user
         self.pwd = pwd
+        self.filepath = filepath
         super().__init__(root, title)
 
     def body(self, frame):
@@ -110,20 +115,24 @@ class NewContactDialog(tk.simpledialog.Dialog):
         self.server_label = tk.Label(frame, width=30, text="DS Server Address")
         self.server_label.pack()
         self.server_entry = tk.Entry(frame, width=30)
-        self.server_entry.insert(tk.END, self.server)
+        #self.server_entry.insert(tk.END, self.server)
         self.server_entry.pack()
+
+        self.filepath_label = tk.Label(frame, width=30, text="File Directory")
+        self.filepath_label.pack()
+        self.filepath_entry = tk.Entry(frame, width=30)
+        self.filepath_entry.pack()
 
         self.username_label = tk.Label(frame, width=30, text="Username")
         self.username_label.pack()
         self.username_entry = tk.Entry(frame, width=30)
-        self.username_entry.insert(tk.END, self.user)
+        #self.username_entry.insert(tk.END, self.user)
         self.username_entry.pack()
 
-        #TO Do password label and entry
         self.password_label = tk.Label(frame, width=30, text="Password")
         self.password_label.pack()
         self.password_entry = tk.Entry(frame, width=30)
-        self.password_entry.insert(tk.END, self.user)
+        #self.password_entry.insert(tk.END, self.user)
         self.password_entry['show'] = "*"
         self.password_entry.pack()
 
@@ -131,8 +140,7 @@ class NewContactDialog(tk.simpledialog.Dialog):
         self.user = self.username_entry.get()
         self.pwd = self.password_entry.get()
         self.server = self.server_entry.get()
-
-
+        self.filepath = self.filepath_entry.get()
 
 class MainApp(tk.Frame):
     def __init__(self, root):
@@ -142,43 +150,106 @@ class MainApp(tk.Frame):
         self.password = None
         self.server = None
         self.recipient = None #should only be one user at a time
+        self.filepath = None
+        self.profile = Profile()
 
         #implement directMessenger
         self.directMessenger = None
 
         self._draw() #pack the widgets into root frame
-        self.body.insert_contact("exampleStudent")
+        # self.body.insert_contact("sampleStudent")
 
     def send_message(self):
-        #TO DO
-        pass
+        message = self.body.get_text_entry()
+        print(message)
+        if message.strip() != " " and self.recipient != None:
+            if self.directMessenger.send(message, self.recipient) is True:
+                self.body.insert_user_message(message)
+                self.body.set_text_entry("")
+                direct_message = DirectMessage("to", self.recipient, message, str(time.time()))
+                self.profile.load_profile(self.filepath)
+                self.profile.add_message(str(self.recipient), direct_message)
+                print(self.filepath)
+                self.profile.save_profile(str(self.filepath))
 
     def add_contact(self):
-        #TO DO
-        #Hint: check how to use tk.simpledialog.askstring to retrive
-        #the name of the new contact, and then use one of the body methods
-        #to add the contact to your contact list
-        pass
+        contact = tk.simpledialog.askstring("Add Contact", "Enter the name of your new contact")
+        self.body.insert_contact(contact)
+
+    def print_messages(self, msg):
+        print(f'From {msg.recipient} "{msg.message}" @ {msg.timestamp}')
 
     def recipient_selected(self, recipient):
+        self.body.entry_editor.delete(1.0, tk.END)
         self.recipient = recipient
+        dm_list = self.directMessenger.retrieve_all()
+        new_list = self.directMessenger.retrieve_new()
+        print("History:\n")
+        for dm in dm_list:
+            if self.recipient == dm.recipient:
+                self.print_messages(dm)
+                self.body.insert_contact_message(dm.message)
+        print("New:\n")
+        for dm in new_list:
+            if self.recipient == dm.recipient:
+                self.print_messages(dm)
+                self.body.insert_contact_message(dm.message)
 
     def configure_server(self):
         ud = NewContactDialog(self.root, "Configure Account", self.username, self.password, self.server)
 
-        self.username = ud.user
-        self.password = ud.pwd
-        self.server = ud.server
+        # self.username = ud.user
+        # self.password = ud.pwd
+        # self.server = ud.server
+        # self.filepath = Path(ud.filepath)
+        self.username = "Dendro"
+        self.password = "slime"
+        self.server = "168.235.86.101"
+        self.filepath = Path("C:\\Users\\luqip\\uciWork\\a4\\User5.dsu")
+        self.load_file()
+        self.show_contacts()
+        id = main.after(2000, app.check_new) #updates window
+        print(id)
 
-        #TO DO: configure and instantiate DirectMessenger
-
-    def publish(self, message:str):
-        #To DO
-        pass
+    def load_file(self):
+        self.directMessenger = DirectMessenger(self.server, self.username, self.password)
+        if self.directMessenger.load_token == None:
+            self.username = tk.simpledialog.askstring("Username", "Username taken. Please enter another Username")
+            self.password = tk.simpledialog.askstring("Password", "Please enter a new password")
+        fileName = self.username + ".dsu"
+        if self.filepath.exists() is True and self.filepath.suffix == ".dsu":
+            self.profile.load_profile(str(self.filepath))
+        elif self.filepath.is_dir() is False:
+            fileDir = tk.simpledialog.askstring("Folder Directory", "Enter a folder for your new profile")
+            self.filepath = Path(fileDir) / fileName
+            self.filepath.touch()
+            self.profile = Profile(self.server, self.filepath, self.username, self.password)
+            self.directMessenger = DirectMessenger(self.server, self.username, self.password)
+            self.directMessenger.load_token()
+            messagebox.showinfo("Profile loaded!")
+    
+    def show_contacts(self):
+        self.profile.load_profile(str(self.filepath))
+        friendList = self.profile.friends
+        print(self.profile.username)
+        print(friendList)
+        for person in friendList:
+            self.body.insert_contact(person)
 
     def check_new(self):
-        #To Do
-        pass
+        self.root.after(2000, self.check_new)
+        dm_list = self.directMessenger.retrieve_new()
+        if dm_list != []:
+            print(f"{dm_list}")
+        for dm in dm_list:
+            if self.recipient == dm.recipient:
+                if dm.type == "to":
+                    self.body.insert_user_message(dm.message)
+                elif dm.type == "from":
+                    self.body.insert_contact_message(dm.message)
+                self.profile.load_profile(self.filepath)
+                self.profile.add_message(self.recipient, dm)
+                self.profile.save_profile(self.filepath)
 
     def _draw(self):
         #Build menu and add to root frame
@@ -196,11 +267,23 @@ class MainApp(tk.Frame):
         settings_file.add_command(label="Add Contact", command=self.add_contact)
         settings_file.add_command(label="Configure DS Server", command=self.configure_server)
 
-        #Body and Footer class must be initalized and packed into root window
+        #Body and Footer class must be initialized and packed into root window
         self.body = Body(self.root, recipient_selected_callback=self.recipient_selected)
         self.body.pack(fill=tk.BOTH, side=tk.TOP, expand=True)
         self.footer = Footer(self.root, send_callback=self.send_message)
         self.footer.pack(fill=tk.BOTH, side=tk.BOTTOM)
+
+def main():
+    main = tk.Tk() #creates root window
+    main.title("ICS 32 Distributed Social Messenger") #title of window
+    main.geometry("720x480") #size of window
+    main.option_add('*tearOff', False)
+    
+    app = MainApp(main) #creates window
+    main.update()
+    main.minsize(main.winfo_width(), main.winfo_height())
+    print(id)
+    main.mainloop()
 
 if __name__ == "__main__":
     main = tk.Tk() #creates root window
@@ -211,7 +294,5 @@ if __name__ == "__main__":
     app = MainApp(main) #creates window
     main.update()
     main.minsize(main.winfo_width(), main.winfo_height())
-    id = main.after(2000, app.check_new) #updates window
-    print(id)
-    main.mainloop
+    main.mainloop()
 

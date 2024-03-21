@@ -39,10 +39,9 @@ def send(profile, admin):
     messAns = ui.yes_or_no("Would you like to go into your messages")
     if messAns == "yes":
       user = DirectMessenger(server, username, password)
-      user.profile = profile
       user.client = client
       user.token = resToken
-      send_message(client, resToken, user)
+      send_message(profile, user)
     
     client.close()
     return True
@@ -53,20 +52,27 @@ def send(profile, admin):
 
 ############################# End of Send #############################
 
-def send_message(client, token, user, repeating=False):
-  all = user.retrieve_all()
-  new = user.retrieve_new()
-  print("All messages: ", all)
-  print("New messages: ", new)
+def print_messages(info):
+  for msg in info:
+    print(f'From {msg.recipient} "{msg.message}" @ {msg.timestamp}')
+
+def send_message(profile, user, repeating=False):
+  print("Messages")
+  print_messages(user.retrieve_all())
+  print("New Messages:")
+  print_messages(user.retrieve_new())
   
   if repeating is False:
     sendAns = ui.yes_or_no("Would you like to send a message")
     while sendAns == "yes":
-      recipient = ui.get_entry("Who is your recipient?")
-      message = ui.get_entry("What is your message?")
+      recipient = input("Who is your recipient?")
+      message = input("What is your message?")
+      direct_msg = DirectMessage(recipient,message, time.time())
       user.send(message, recipient)
+      profile.add_message(recipient, direct_msg)
+      profile.save_profile(str(profile.filepath))
 
-      all = user.history
+      all = user.retrieve_all()
       print("All messages: ", all)
       sendAns = ui.yes_or_no("Would you like to send another message")
   ui.aline("Returning to publish command...")

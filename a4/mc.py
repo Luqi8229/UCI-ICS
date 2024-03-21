@@ -141,7 +141,8 @@ def dsu_command(admin = False):
 def publish_command(admin):
     #address 168.235.86.101
     profile = ui.choose_profile(admin)
-    if ds_client.send(profile, admin) is True:
-        ui.aline("Closing connection...")
+    if profile != None:
+        if ds_client.send(profile, admin) is True:
+            ui.aline("Closing connection...")
     ui.aline("Going back to main...")
     
