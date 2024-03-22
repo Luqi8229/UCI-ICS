@@ -93,6 +93,15 @@ class DirectMessenger:
             dm = DirectMessage(ty, recipient, message, timestamp)
             dm_list.append(dm)
         return dm_list
+    
+    def recipient_history(self, recipient, lst): # filter for recipient history
+        history = []
+        for msg in lst:
+            if msg["recipient"] == recipient:
+                history.append(msg)
+        print(f'recipient_history {history}')
+                
+            
 
 
 if __name__ == "__main__":

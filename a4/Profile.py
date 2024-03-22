@@ -113,15 +113,10 @@ class Profile:
         if contact not in self.friends:
             self.friends.append(contact)
             self.history[contact] = []
-            print("friends list ", self.friends)
-            print("history dict )", self.history)
 
     def add_message(self, msg: DirectMessage) -> None:
-        print("friends ", type(self.friends))
-        print("history ", type(self.history))
         self.add_friend(msg.recipient)
         self.add_history(msg)
-        print(f'Message Sent to {msg.recipient}: {msg.message} @ {msg.timestamp}')
 
     def add_post(self, post: Post) -> None:
         self._posts.append(post)
@@ -163,9 +158,9 @@ class Profile:
                 self.password = obj['password']
                 self.dsuserver = obj['dsuserver']
                 self.bio = obj['bio']
-                self.friends = obj['friends']
                 self.history = {}
                 for fred in obj['history']:
+                    self.add_friend(fred)
                     self.history[fred] = []
                     for rec in obj["history"][fred]:
                         self.history[fred].append(rec)

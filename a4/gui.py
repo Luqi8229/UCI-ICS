@@ -185,9 +185,6 @@ class MainApp(tk.Frame):
         fileName = self.username + ".dsu"
         if self.filepath.exists() is True and self.filepath.name == fileName:
             self.profile.load_profile(str(self.filepath))
-            print("load_file")
-            print("friends ", type(self.profile.friends))
-            print("history ", type(self.profile.history))
         else:
             self.filepath = Path(self.filepath) / fileName
             self.filepath.touch()
@@ -199,20 +196,44 @@ class MainApp(tk.Frame):
     def recipient_selected(self, recipient):
         self.recipient = recipient
         self.body.entry_editor.delete(1.0, tk.END)
-        dm_list = self.directMessenger.retrieve_all()
-        new_list = self.directMessenger.retrieve_new()
-        print("History:")
-        for dm in dm_list:
-            if self.recipient == dm["recipient"]:
-                self.print_messages(dm)
-                self.body.insert_contact_message(dm.message)
-                self.profile.add_message(dm)
-        print("New:")
-        for dm in new_list:
-            if self.recipient == dm["recipient"]:
-                self.print_messages(dm)
-                self.body.insert_contact_message(dm.message)
-                self.profile.add_message(dm)
+        all_history = self.directMessenger.retrieve_all()
+        all_dm = self.directMessenger.recipient_history(self.recipient, all_history)
+        new_history = self.directMessenger.retrieve_new()
+        new_dm = self.directMessenger.recipient_history(self.recipient, new_history)
+        # new_list = self.directMessenger.retrieve_new()
+        # print("History:")
+        # for dm in dm_list:
+        #     if self.recipient == dm["recipient"]:
+        #         self.print_messages(dm)
+        #         self.body.insert_contact_message(dm.message)
+        #         self.profile.add_message(dm)
+        # print("New:")
+        # if len(new_list) > 0:
+        #     for dm in new_list:
+        #         if self.recipient == dm["recipient"]:
+        #             self.print_messages(dm)
+        #             self.body.insert_contact_message(dm.message)
+        #             self.profile.add_message(dm)
+        # else:
+        #     print("No new messages")
+            
+    def combine_history(lst1, lst2): # for one recipient
+        history = []
+        rec1 = None
+        rec2 = None
+        while len(lst1) != 0 and len(lst2) != 0:
+            if len(lst1) > 0:
+                rec1 = lst1[0]
+            if len(lst2) > 0:
+                rec2 = lst1[0]
+            
+            if rec1["timestamp"] > rec2["timestamp"]: #find which sent last
+                history.append(rec1)
+                lst1.pop(0)
+            else:
+                history.append(rec2)
+                lst2.pop(0)
+        print(history)
 
     def send_message(self):
         message = self.body.get_text_entry()
@@ -220,9 +241,10 @@ class MainApp(tk.Frame):
             if self.directMessenger.send(message, self.recipient) is True:
                 self.body.insert_user_message(message)
                 self.body.set_text_entry("")
-                direct_message = DirectMessage("to", self.recipient, message, str(time.time()))
+                dm = DirectMessage("to", self.recipient, message, str(time.time()))
+                print(f'Message Sent to {dm.recipient}: {dm.message} @ {dm.timestamp}')
                 self.profile.load_profile(str(self.filepath))
-                self.profile.add_message(direct_message)
+                self.profile.add_message(dm)
                 self.profile.save_profile(str(self.filepath))
 
     def add_contact(self):
@@ -238,7 +260,10 @@ class MainApp(tk.Frame):
     def show_contacts(self):
         self.profile.load_profile(str(self.filepath))
         friendList = self.profile.friends
+        print(f'friendslist = {friendList}')
         for person in friendList:
+            
+            print(f"added {person}")
             self.body.insert_contact(person)
 
     def check_new(self):

@@ -72,13 +72,10 @@ def send_message(profile, user, repeating=False):
     while sendAns == "yes":
       recipient = input("Who is your recipient?")
       message = input("What is your message?")
-      # TEMP
-      for rec in history:
-        profile.add_message(rec)
-      #
-      direct_msg = DirectMessage("to", recipient,message, time.time())
+      dm = DirectMessage("to", recipient,message, time.time())
       if user.send(message, recipient) is True:
-        profile.add_message(direct_msg)
+        print(f'Message Sent to {dm.recipient}: {dm.message} @ {dm.timestamp}')
+        profile.add_message(dm)
         profile.save_profile(str(profile.filepath))
 
       sendAns = ui.yes_or_no("Would you like to send another message")
