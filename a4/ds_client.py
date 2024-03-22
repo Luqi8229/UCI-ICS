@@ -67,13 +67,13 @@ def send_message(profile, user, repeating=False):
     while sendAns == "yes":
       recipient = input("Who is your recipient?")
       message = input("What is your message?")
-      direct_msg = DirectMessage(recipient,message, time.time())
-      user.send(message, recipient)
-      profile.add_message(recipient, direct_msg)
-      profile.save_profile(str(profile.filepath))
+      direct_msg = DirectMessage("to", recipient,message, time.time())
+      if user.send(message, recipient) is True:
+        profile.add_message(str(recipient), direct_msg)
+        profile.save_profile(str(profile.filepath))
 
-      all = user.retrieve_all()
-      print("All messages: ", all)
+        all = user.retrieve_all()
+        print("All messages: ", all)
       sendAns = ui.yes_or_no("Would you like to send another message")
   ui.aline("Returning to publish command...")
 

@@ -27,11 +27,12 @@ class DirectMessenger:
         try:
             self.client, response = get_token_client(self.username, self.password, self.dsuserver)
             tp = extract_json_single(response, "type")
-            msg = extract_json_single(response, "message")
+            message = extract_json_single(response, "message")
             if tp != "ok":
-                return msg
+                return message
             elif tp == "ok":
                 self.token = extract_json_single(response, "token")
+                print(message)
                 return None
         except Exception:
             self.username = input("Enter your username: ")
@@ -66,11 +67,11 @@ class DirectMessenger:
         dm_list = []
         for msg in history:
             recipient = msg["from"]
-            print(f"recipient: {recipient}")
+            # print(f"recipient: {recipient}")
             message = msg["message"]
-            print(f"message: {message}")
+            # print(f"message: {message}")
             timestamp = msg["timestamp"]
-            print(f"timestamp: {timestamp}")
+            # print(f"timestamp: {timestamp}")
             dm = DirectMessage("from", recipient, message, timestamp)
             dm_list.append(dm)
         return dm_list

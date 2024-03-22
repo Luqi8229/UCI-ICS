@@ -207,10 +207,10 @@ class MainApp(tk.Frame):
         # self.password = ud.pwd
         # self.server = ud.server
         # self.filepath = Path(ud.filepath)
-        self.username = "Dendro"
-        self.password = "slime"
+        self.username = "Cyro"
+        self.password = "Slimess"
         self.server = "168.235.86.101"
-        self.filepath = Path("C:\\Users\\luqip\\uciWork\\a4\\User5.dsu")
+        self.filepath = Path("C:\\Users\\luqip\\uciWork\\a4\\Cyro.dsu")
         self.load_file()
         self.show_contacts()
         id = main.after(2000, app.check_new) #updates window
@@ -218,19 +218,24 @@ class MainApp(tk.Frame):
 
     def load_file(self):
         self.directMessenger = DirectMessenger(self.server, self.username, self.password)
-        if self.directMessenger.load_token == None:
+        if self.directMessenger.load_token() != None:
+            print(self.directMessenger.self.token)
             self.username = tk.simpledialog.askstring("Username", "Username taken. Please enter another Username")
             self.password = tk.simpledialog.askstring("Password", "Please enter a new password")
+            self.filepath = tk.simpledialog.askstring("Folder Directory", "Enter a folder for your new profile")
+            self.filepath = Path(self.filepath)
         fileName = self.username + ".dsu"
-        if self.filepath.exists() is True and self.filepath.suffix == ".dsu":
+        if self.filepath.exists() is True and self.filepath.name == fileName:
             self.profile.load_profile(str(self.filepath))
-        elif self.filepath.is_dir() is False:
-            fileDir = tk.simpledialog.askstring("Folder Directory", "Enter a folder for your new profile")
-            self.filepath = Path(fileDir) / fileName
+        else:
+            self.filepath = Path(self.filepath) / fileName
             self.filepath.touch()
-            self.profile = Profile(self.server, self.filepath, self.username, self.password)
+            self.profile = Profile(self.server, str(self.filepath), self.username, self.password)
+            self.profile.save_profile(str(self.filepath))
             self.directMessenger = DirectMessenger(self.server, self.username, self.password)
             self.directMessenger.load_token()
+        
+        
     
     def show_contacts(self):
         self.profile.load_profile(str(self.filepath))
@@ -272,18 +277,6 @@ class MainApp(tk.Frame):
         self.body.pack(fill=tk.BOTH, side=tk.TOP, expand=True)
         self.footer = Footer(self.root, send_callback=self.send_message)
         self.footer.pack(fill=tk.BOTH, side=tk.BOTTOM)
-
-def main():
-    main = tk.Tk() #creates root window
-    main.title("ICS 32 Distributed Social Messenger") #title of window
-    main.geometry("720x480") #size of window
-    main.option_add('*tearOff', False)
-    
-    app = MainApp(main) #creates window
-    main.update()
-    main.minsize(main.winfo_width(), main.winfo_height())
-    print(id)
-    main.mainloop()
 
 if __name__ == "__main__":
     main = tk.Tk() #creates root window

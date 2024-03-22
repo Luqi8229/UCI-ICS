@@ -65,7 +65,8 @@ def open_profile(filePath, admin = False):
     try:
         prof.load_profile(str(filePath))
         aline(f'Opened Profile: {prof.username}')
-    except:
+    except Exception as e:
+        print(e)
         aline("There is not a profile associated with this DSU file", admin)
         newAns = yes_or_no("Would you like to enter another directory", admin)
         if newAns == "yes":

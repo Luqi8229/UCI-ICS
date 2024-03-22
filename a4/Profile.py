@@ -108,18 +108,15 @@ class Profile:
     def add_history(self, dm):
         if (dm.timestamp and dm.message) not in self.history:
             self.history.append(dm)
-        self.save_profile(str(self.filepath))
     
     def add_friend(self, contact):
         if contact not in self.friends:
             self.friends.append(contact)
-        self.save_profile(str(self.filepath))
 
     def add_message(self, contact:str, message: DirectMessage) -> None:
         self.add_friend(contact)
         print(type(contact), type(message))
         self.add_history(message)
-        print(self.history)
 
     """
 
