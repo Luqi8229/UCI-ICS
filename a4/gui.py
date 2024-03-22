@@ -205,14 +205,8 @@ class MainApp(tk.Frame):
         recp_dm = self.directMessenger.recipient_history(self.recipient, all_dms)
         self.loop_messages(recp_dm)
         
-        # print(self.profile.history)
-        # self.profile.load_profile(str(self.filepath))
         print(self.profile.history)
         prof_history = self.profile.history[self.recipient]
-        # print(f'prof_history type{type(prof_history)}')
-        # print(f'prof_history element type {type(prof_history[0])}')
-        # print(f'prof_history first element{prof_history[0]}')
-        # self.loop_messages(prof_history)
         dm_history = self.combine_history(prof_history, recp_dm)
         print(f'dm_history type {type(dm_history)}')
         print(dm_history)
@@ -222,6 +216,8 @@ class MainApp(tk.Frame):
         new_history = self.directMessenger.retrieve_new()
         new_dm = self.directMessenger.recipient_history(self.recipient, new_history)
         print("History")
+        print("friends ", self.profile.friends)
+        print("history ", self.profile.history)
         self.load_chat(chatHistory)
         print("New")
         self.load_chat(new_dm)
@@ -234,7 +230,6 @@ class MainApp(tk.Frame):
                 self.body.set_text_entry("")
                 dm = DirectMessage("to", self.recipient, message, str(time.time()))
                 print(f'Message Sent to {dm.recipient}: {dm.message} @ {dm.timestamp}')
-                self.profile.load_profile(str(self.filepath))
                 self.profile.add_message(dm)
                 self.profile.save_profile(str(self.filepath))
                 
@@ -264,7 +259,6 @@ class MainApp(tk.Frame):
                         self.body.insert_user_message(dm["message"])
                     elif dm["type"] == "from":
                         self.body.insert_contact_message(dm["message"])
-                    self.profile.load_profile(self.filepath)
                     self.profile.add_message(dm)
                     self.profile.save_profile(self.filepath)
                 index += 1
@@ -275,7 +269,6 @@ class MainApp(tk.Frame):
         contact = tk.simpledialog.askstring("Add Contact", "Enter the name of your new contact")
         if len(contact) > 0:
             self.body.insert_contact(contact)
-            self.profile.load_profile(str(self.filepath))
             self.profile.add_friend(contact)
             print(f'added {contact}')
             self.profile.save_profile(str(self.filepath))
@@ -290,7 +283,6 @@ class MainApp(tk.Frame):
         print(f'{msg["type"].capitalize()} {msg["recipient"]} "{msg["message"]}" @ {msg["timestamp"]}')
     
     def show_contacts(self):
-        # self.profile.load_profile(str(self.filepath))
         friendList = self.profile.friends
         for person in friendList:
             print(f"show {person}")
