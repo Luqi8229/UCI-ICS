@@ -184,8 +184,8 @@ class MainApp(tk.Frame):
     #     print(f'From {msg["recipient"]} "{msg["message"]}" @ {msg["timestamp"]}')
 
     def recipient_selected(self, recipient):
-        self.body.entry_editor.delete(1.0, tk.END)
         self.recipient = recipient
+        self.body.entry_editor.delete(1.0, tk.END)
         dm_list = self.directMessenger.retrieve_all()
         new_list = self.directMessenger.retrieve_new()
         print("History:\n")
