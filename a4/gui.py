@@ -178,7 +178,10 @@ class MainApp(tk.Frame):
         self.profile.save_profile(str(self.filepath))
 
     def print_messages(self, msg):
-        print(f'From {msg.recipient} "{msg.message}" @ {msg.timestamp}')
+        print(f'From {msg.recipient}: "{msg.message}" @ {msg.timestamp}')
+
+    # def print_messages(self, msg):
+    #     print(f'From {msg["recipient"]} "{msg["message"]}" @ {msg["timestamp"]}')
 
     def recipient_selected(self, recipient):
         self.body.entry_editor.delete(1.0, tk.END)
@@ -190,6 +193,7 @@ class MainApp(tk.Frame):
             if self.recipient == dm.recipient:
                 self.print_messages(dm)
                 self.body.insert_contact_message(dm.message)
+                self.profile.add_history(dm)
         print("New:\n")
         for dm in new_list:
             if self.recipient == dm.recipient:
@@ -227,21 +231,16 @@ class MainApp(tk.Frame):
             self.profile = Profile(self.server, self.filepath, self.username, self.password)
             self.directMessenger = DirectMessenger(self.server, self.username, self.password)
             self.directMessenger.load_token()
-            messagebox.showinfo("Profile loaded!")
     
     def show_contacts(self):
         self.profile.load_profile(str(self.filepath))
         friendList = self.profile.friends
-        print(self.profile.username)
-        print(friendList)
         for person in friendList:
             self.body.insert_contact(person)
 
     def check_new(self):
         self.root.after(2000, self.check_new)
         dm_list = self.directMessenger.retrieve_new()
-        if dm_list != []:
-            print(f"{dm_list}")
         for dm in dm_list:
             if self.recipient == dm.recipient:
                 if dm.type == "to":

@@ -11,6 +11,7 @@ class DirectMessage:
         self.timestamp = timestamp
 
         # dict.__init__(self, type=self.type, recipient=self.recipient, message=self.message, timestamp=self.timestamp)
+        # it doesn't work
 
 class DirectMessenger:
     def __init__(self, dsuserver=None, username=None, password=None):
@@ -23,32 +24,25 @@ class DirectMessenger:
         self.load_token()
 
     def load_token(self):
-        self.client, response = get_token_client(self.username, self.password, self.dsuserver)
-        tp = extract_json_single(response, "type")
-        msg = extract_json_single(response, "message")
-        if tp != "ok":
-            return msg
-        else:
+        try:
+            self.client, response = get_token_client(self.username, self.password, self.dsuserver)
+            tp = extract_json_single(response, "type")
+            msg = extract_json_single(response, "message")
+            if tp != "ok":
+                return msg
+            elif tp == "ok":
+                self.token = extract_json_single(response, "token")
+                return None
+        except Exception:
+            self.username = input("Enter your username: ")
+            self.password = input("Enter your password: ")
+            self.dsuserver = input("Enter your server: ")
+            self.client, response = get_token_client(self.username, self.password, self.dsuserver)
+            message = extract_json_single(response, "message")
+            while "Invalid" in message:
+                print(f'{self.username} already exists in the server.\nChoose another profile.')
+                self.load_token()
             self.token = extract_json_single(response, "token")
-            return None
-        # except Exception:
-        #     print("chosing profile")
-        #     self.profile = choose_profile()
-        #     self.username = self.profile.username
-        #     self.password = self.profile.password
-        #     self.dsuserver = self.profile.dsuserver
-        #     if self.dsuserver == None:
-        #         self.profile.dsuserver = input("\nWhat is the server address you want to connect to:\n")
-        #         self.dsuserver = self.profile.dsuserver
-        #         self.profile.save_profile(str(self.profile.filepath))
-        #     self.client, response = get_token_client(self.username, self.password, self.dsuserver)
-        #     message = extract_json_single(response, "message")
-        #     if "Invalid" in message:
-        #         print(f'{self.username} already exists in the server.\nChoose another profile.')
-        #         self.load_token()
-        #         self.token = extract_json_single(response, "token")
-        #         self.friends = self.profile.friends
-        #         self.history = self.profile.history
 
     def send(self, message:str, recipient:str) -> bool:
         # must return true if message successfully sent, false if send failed.
@@ -88,7 +82,6 @@ class DirectMessenger:
 
         response = self.client.recv(2048).decode("utf-8")
         history = extract_json_single(response, "messages")
-        print(history)
         dm_list = []
         for msg in history:
             if "entry" in msg:
@@ -100,7 +93,7 @@ class DirectMessenger:
                 recipient = msg["from"]
                 message = msg["message"]
             timestamp = msg["timestamp"]
-            dm = DirectMessage(type, recipient, message, timestamp)
+            dm = DirectMessage(ty, recipient, message, timestamp)
             dm_list.append(dm)
         return dm_list
 
