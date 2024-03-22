@@ -213,8 +213,9 @@ class MainApp(tk.Frame):
         # print(f'prof_history element type {type(prof_history[0])}')
         # print(f'prof_history first element{prof_history[0]}')
         # self.loop_messages(prof_history)
-        dm_history = self.combine_history(recp_dm, prof_history)
-        print(type(dm_history))
+        dm_history = self.combine_history(prof_history, recp_dm)
+        print(f'dm_history type {type(dm_history)}')
+        print(dm_history)
         self.loop_messages(dm_history)
         chatHistory = sorted(dm_history, key=lambda x: float(x["timestamp"]))
         
@@ -238,7 +239,7 @@ class MainApp(tk.Frame):
                 self.profile.save_profile(str(self.filepath))
                 
     def combine_history(self, lst1, lst2):
-        print(lst2)
+        print(f"lst2 \n{lst2}")
         index = 1
         for dm in lst1:
             print(index)
