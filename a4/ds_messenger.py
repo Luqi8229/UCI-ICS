@@ -66,11 +66,8 @@ class DirectMessenger:
         dm_list = []
         for msg in history:
             recipient = msg["from"]
-            # print(f"recipient: {recipient}")
             message = msg["message"]
-            # print(f"message: {message}")
             timestamp = msg["timestamp"]
-            # print(f"timestamp: {timestamp}")
             dm = DirectMessage("from", recipient, message, timestamp)
             dm_list.append(dm)
         return dm_list

@@ -57,21 +57,24 @@ def print_messages(info):
     print(f'From {msg.recipient} "{msg.message}" @ {msg.timestamp}')
 
 def send_message(profile, user, repeating=False):
-  print("Messages")
+  print("Messages:")
   history = user.retrieve_all()
-  profile.history = history
   print_messages(history)
   print("New Messages:")
-  print_messages(user.retrieve_new())
+  new = user.retrieve_new()
+  if new != []:
+    print_messages(new)
   
   if repeating is False:
     sendAns = ui.yes_or_no("Would you like to send a message")
     while sendAns == "yes":
       recipient = input("Who is your recipient?")
       message = input("What is your message?")
+      profile.history = {}
+      profile.history[recipient] = history
       direct_msg = DirectMessage("to", recipient,message, time.time())
       if user.send(message, recipient) is True:
-        profile.add_message(str(recipient), direct_msg)
+        profile.add_message(direct_msg)
         profile.save_profile(str(profile.filepath))
 
       sendAns = ui.yes_or_no("Would you like to send another message")

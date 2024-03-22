@@ -95,29 +95,33 @@ class Profile:
 
     """
 
-    def __init__(self, dsuserver=None, filepath=None, username=None, password=None, bio=None, posts=[], friends=[], history=[]):
+    def __init__(self, dsuserver=None, filepath=None, username=None, password=None, bio=None, posts=[], friends=[], history={}):
         self.dsuserver = dsuserver # REQUIRED
         self.filepath = filepath
         self.username = username # REQUIRED
         self.password = password # REQUIRED
         self.bio = bio # OPTIONAL
         self._posts = posts # OPTIONAL
-        self.friends = []
-        self.history = []
+        self.friends = friends
+        self.history = history
     
     def add_history(self, dm):
         if (dm.timestamp and dm.message) not in self.history:
-            self.history.append(dm)
+            self.history[dm.recipient].append(dm)
     
     def add_friend(self, contact):
         if contact not in self.friends:
             self.friends.append(contact)
+            self.history[contact] = []
+            print("friends list ", self.friends)
+            print("history dict )", self.history)
 
-    def add_message(self, contact:str, message: DirectMessage) -> None:
-        self.add_friend(contact)
-        print(message)
-        print(type(contact), type(message))
-        self.add_history(message)
+    def add_message(self, msg: DirectMessage) -> None:
+        print("friends ", type(self.friends))
+        print("history ", type(self.history))
+        self.add_friend(msg.recipient)
+        self.add_history(msg)
+        print(f'Message Sent to {msg.recipient}: {msg.message} @ {msg.timestamp}')
 
     """
 

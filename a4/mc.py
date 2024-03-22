@@ -144,5 +144,6 @@ def publish_command(admin):
     if profile != None:
         if ds_client.send(profile, admin) is True:
             ui.aline("Closing connection...")
+        print(type(profile.history))
     ui.aline("Going back to main...")
     

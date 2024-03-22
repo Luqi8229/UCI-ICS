@@ -1,1 +1,1 @@
-{"dsuserver": "168.235.86.101", "filepath": "C:\\Users\\luqip\\uciWork\\a4\\User4.dsu", "username": "Lantern", "password": "Rite", "bio": null, "_posts": [], "friends": [], "history":{}}
+{"dsuserver": "168.235.86.101", "filepath": "C:\\Users\\luqip\\uciWork\\a4\\User4.dsu", "username": "Lantern", "password": "Rite", "bio": null, "_posts": [], "friends": ["Kyliee"], "history": {"Kyliee": [{"type": "to", "recipient": "Kyliee", "message": "sup", "timestamp": 1711092816.5998013}]}}

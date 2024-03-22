@@ -159,47 +159,6 @@ class MainApp(tk.Frame):
         self._draw() #pack the widgets into root frame
         # self.body.insert_contact("sampleStudent")
 
-    def send_message(self):
-        message = self.body.get_text_entry()
-        if message.strip() != " " and self.recipient != None:
-            if self.directMessenger.send(message, self.recipient) is True:
-                self.body.insert_user_message(message)
-                self.body.set_text_entry("")
-                direct_message = DirectMessage("to", self.recipient, message, str(time.time()))
-                self.profile.load_profile(self.filepath)
-                self.profile.add_message(str(self.recipient), direct_message)
-                self.profile.save_profile(str(self.filepath))
-
-    def add_contact(self):
-        contact = tk.simpledialog.askstring("Add Contact", "Enter the name of your new contact")
-        self.body.insert_contact(contact)
-        self.profile.load_profile(str(self.filepath))
-        self.profile.add_friend(contact)
-        self.profile.save_profile(str(self.filepath))
-
-    def print_messages(self, msg):
-        print(f'From {msg.recipient}: "{msg.message}" @ {msg.timestamp}')
-
-    # def print_messages(self, msg):
-    #     print(f'From {msg["recipient"]} "{msg["message"]}" @ {msg["timestamp"]}')
-
-    def recipient_selected(self, recipient):
-        self.recipient = recipient
-        self.body.entry_editor.delete(1.0, tk.END)
-        dm_list = self.directMessenger.retrieve_all()
-        new_list = self.directMessenger.retrieve_new()
-        print("History:\n")
-        for dm in dm_list:
-            if self.recipient == dm.recipient:
-                self.print_messages(dm)
-                self.body.insert_contact_message(dm.message)
-                self.profile.add_history(dm)
-        print("New:\n")
-        for dm in new_list:
-            if self.recipient == dm.recipient:
-                self.print_messages(dm)
-                self.body.insert_contact_message(dm.message)
-
     def configure_server(self):
         ud = NewContactDialog(self.root, "Configure Account", self.username, self.password, self.server)
 
@@ -226,6 +185,10 @@ class MainApp(tk.Frame):
         fileName = self.username + ".dsu"
         if self.filepath.exists() is True and self.filepath.name == fileName:
             self.profile.load_profile(str(self.filepath))
+            self.profile.history = {}
+            print("load_file")
+            print("friends ", type(self.profile.friends))
+            print("history ", type(self.profile.history))
         else:
             self.filepath = Path(self.filepath) / fileName
             self.filepath.touch()
@@ -233,6 +196,45 @@ class MainApp(tk.Frame):
             self.profile.save_profile(str(self.filepath))
             self.directMessenger = DirectMessenger(self.server, self.username, self.password)
             self.directMessenger.load_token()
+
+    def recipient_selected(self, recipient):
+        self.recipient = recipient
+        self.body.entry_editor.delete(1.0, tk.END)
+        dm_list = self.directMessenger.retrieve_all()
+        new_list = self.directMessenger.retrieve_new()
+        print("History:")
+        for dm in dm_list:
+            if self.recipient == dm["recipient"]:
+                self.print_messages(dm)
+                self.body.insert_contact_message(dm.message)
+                self.profile.add_message(dm)
+        print("New:")
+        for dm in new_list:
+            if self.recipient == dm["recipient"]:
+                self.print_messages(dm)
+                self.body.insert_contact_message(dm.message)
+                self.profile.add_message(dm)
+
+    def send_message(self):
+        message = self.body.get_text_entry()
+        if message.strip() != " " and self.recipient != None:
+            if self.directMessenger.send(message, self.recipient) is True:
+                self.body.insert_user_message(message)
+                self.body.set_text_entry("")
+                direct_message = DirectMessage("to", self.recipient, message, str(time.time()))
+                self.profile.load_profile(str(self.filepath))
+                self.profile.add_message(direct_message)
+                self.profile.save_profile(str(self.filepath))
+
+    def add_contact(self):
+        contact = tk.simpledialog.askstring("Add Contact", "Enter the name of your new contact")
+        self.body.insert_contact(contact)
+        self.profile.load_profile(str(self.filepath))
+        self.profile.add_friend(contact)
+        self.profile.save_profile(str(self.filepath))
+
+    def print_messages(self, msg):
+        print(f'From {msg["recipient"]} "{msg["message"]}" @ {msg["timestamp"]}')
     
     def show_contacts(self):
         self.profile.load_profile(str(self.filepath))
