@@ -185,7 +185,6 @@ class MainApp(tk.Frame):
         fileName = self.username + ".dsu"
         if self.filepath.exists() is True and self.filepath.name == fileName:
             self.profile.load_profile(str(self.filepath))
-            self.profile.history = {}
             print("load_file")
             print("friends ", type(self.profile.friends))
             print("history ", type(self.profile.history))
@@ -253,7 +252,7 @@ class MainApp(tk.Frame):
                     elif dm.type == "from":
                         self.body.insert_contact_message(dm.message)
                     self.profile.load_profile(self.filepath)
-                    self.profile.add_message(self.recipient, dm)
+                    self.profile.add_message(dm)
                     self.profile.save_profile(self.filepath)
 
     def _draw(self):

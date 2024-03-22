@@ -106,7 +106,7 @@ class Profile:
         self.history = history
     
     def add_history(self, dm):
-        if (dm.timestamp and dm.message) not in self.history:
+        if (dm.message and dm.timestamp) not in self.history[dm.recipient]:
             self.history[dm.recipient].append(dm)
     
     def add_friend(self, contact):
@@ -123,28 +123,8 @@ class Profile:
         self.add_history(msg)
         print(f'Message Sent to {msg.recipient}: {msg.message} @ {msg.timestamp}')
 
-    """
-
-    add_post accepts a Post object as parameter and appends it to the posts list. Posts 
-    are stored in a list object in the order they are added. So if multiple Posts objects 
-    are created, but added to the Profile in a different order, it is possible for the 
-    list to not be sorted by the Post.timestamp property. So take caution as to how you 
-    implement your add_post code.
-
-    """
-
     def add_post(self, post: Post) -> None:
         self._posts.append(post)
-
-    """
-
-    del_post removes a Post at a given index and returns True if successful and False if 
-    an invalid index was supplied. 
-
-    To determine which post to delete you must implement your own search operation on 
-    the posts returned from the get_posts function to find the correct index.
-
-    """
 
     def del_post(self, index: int) -> bool:
         try:
@@ -153,30 +133,12 @@ class Profile:
         except IndexError:
             return False
         
-    """
-    
-    get_posts returns the list object containing all posts that have been added to the 
-    Profile object
-
-    """
     def get_posts(self) -> list[Post]:
         return self._posts
     
     def get_post_by_ID(self, id:int):
         return self._posts[id]
-    """
 
-    save_profile accepts an existing dsu file to save the current instance of Profile 
-    to the file system.
-
-    Example usage:
-
-    profile = Profile()
-    profile.save_profile('/path/to/file.dsu')
-
-    Raises DsuFileError
-
-    """
     def save_profile(self, path: str) -> None:
         p = Path(path)
         if p.exists() and p.suffix == '.dsu':
@@ -189,19 +151,6 @@ class Profile:
         else:
             raise DsuFileError("Invalid DSU file path or type")
 
-    """
-
-    load_profile will populate the current instance of Profile with data stored in a 
-    DSU file.
-
-    Example usage: 
-
-    profile = Profile()
-    profile.load_profile('/path/to/file.dsu')
-
-    Raises DsuProfileError, DsuFileError
-
-    """
     def load_profile(self, path:str) -> None:
         p = Path(path)
 
@@ -215,10 +164,15 @@ class Profile:
                 self.dsuserver = obj['dsuserver']
                 self.bio = obj['bio']
                 self.friends = obj['friends']
-                self.history = []
-                for record in obj['history']:
-                    if len(record) != 0:
-                        self.history.append(record)
+                self.history = {}
+                for fred in obj['history']:
+                    self.add_friend(fred)
+                    print(obj["history"])
+                    print(fred)
+                    print(self.history)
+                    for rec in fred:
+                        print(rec)
+                        self.history[fred].append(rec)
                 self._posts = []
                 for post_obj in obj['_posts']:
                     post = Post(post_obj['entry'], post_obj['timestamp'])

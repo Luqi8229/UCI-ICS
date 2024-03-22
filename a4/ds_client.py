@@ -64,14 +64,18 @@ def send_message(profile, user, repeating=False):
   new = user.retrieve_new()
   if new != []:
     print_messages(new)
+  else:
+    print("No new messages")
   
   if repeating is False:
     sendAns = ui.yes_or_no("Would you like to send a message")
     while sendAns == "yes":
       recipient = input("Who is your recipient?")
       message = input("What is your message?")
-      profile.history = {}
-      profile.history[recipient] = history
+      # TEMP
+      for rec in history:
+        profile.add_message(rec)
+      #
       direct_msg = DirectMessage("to", recipient,message, time.time())
       if user.send(message, recipient) is True:
         profile.add_message(direct_msg)
