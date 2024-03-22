@@ -166,12 +166,8 @@ class Profile:
                 self.friends = obj['friends']
                 self.history = {}
                 for fred in obj['history']:
-                    self.add_friend(fred)
-                    print(obj["history"])
-                    print(fred)
-                    print(self.history)
-                    for rec in fred:
-                        print(rec)
+                    self.history[fred] = []
+                    for rec in obj["history"][fred]:
                         self.history[fred].append(rec)
                 self._posts = []
                 for post_obj in obj['_posts']:
