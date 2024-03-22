@@ -201,12 +201,22 @@ class MainApp(tk.Frame):
     def recipient_selected(self, recipient):
         self.recipient = recipient
         self.body.entry_editor.delete(1.0, tk.END)
-        all_history = self.directMessenger.retrieve_all()
-        all_dm = self.directMessenger.recipient_history(self.recipient, all_history)
+        all_dms = self.directMessenger.retrieve_all()
+        recp_dm = self.directMessenger.recipient_history(self.recipient, all_dms)
+        self.loop_messages(recp_dm)
         
-        self.profile.load_profile(str(self.filepath))
-        all_dm.extend(self.profile.history[self.recipient])
-        chatHistory = sorted(all_dm, key=lambda x: float(x["timestamp"]))
+        # print(self.profile.history)
+        # self.profile.load_profile(str(self.filepath))
+        print(self.profile.history)
+        prof_history = self.profile.history[self.recipient]
+        # print(f'prof_history type{type(prof_history)}')
+        # print(f'prof_history element type {type(prof_history[0])}')
+        # print(f'prof_history first element{prof_history[0]}')
+        # self.loop_messages(prof_history)
+        dm_history = self.combine_history(recp_dm, prof_history)
+        print(type(dm_history))
+        self.loop_messages(dm_history)
+        chatHistory = sorted(dm_history, key=lambda x: float(x["timestamp"]))
         
         new_history = self.directMessenger.retrieve_new()
         new_dm = self.directMessenger.recipient_history(self.recipient, new_history)
@@ -226,34 +236,28 @@ class MainApp(tk.Frame):
                 self.profile.load_profile(str(self.filepath))
                 self.profile.add_message(dm)
                 self.profile.save_profile(str(self.filepath))
-
-    def add_contact(self):
-        contact = tk.simpledialog.askstring("Add Contact", "Enter the name of your new contact")
-        self.body.insert_contact(contact)
-        self.profile.load_profile(str(self.filepath))
-        self.profile.add_friend(contact)
-        self.profile.save_profile(str(self.filepath))
-
-    def print_message(self, msg):
-        print(f'{msg["type"].capitalize()} {msg["recipient"]} "{msg["message"]}" @ {msg["timestamp"]}')
-    
-    def show_contacts(self):
-        self.profile.load_profile(str(self.filepath))
-        friendList = self.profile.friends
-        for person in friendList:
-            print(f"added {person}")
-            self.body.insert_contact(person)
-
-    def check_new(self):
-        self.root.after(2000, self.check_new)
-        dm_list = self.directMessenger.retrieve_new()
-        if dm_list != []:
-            self.load_chat(dm_list)
+                
+    def combine_history(self, lst1, lst2):
+        print(lst2)
+        index = 1
+        for dm in lst1:
+            print(index)
+            print(dm)
+            if dm not in lst2:
+                print(0)
+                lst2.append(lst1)
+                print(f'{dm} not in lst2')
+            index += 1
+        return lst2
     
     def load_chat(self, lst:list):
         if len(lst) > 0:
+            print(lst)
+            index = 1
             for dm in lst:
+                print(index)
                 if self.recipient == dm["recipient"]:
+                    print(0)
                     self.print_message(dm)
                     if dm["type"] == "to":
                         self.body.insert_user_message(dm["message"])
@@ -262,8 +266,40 @@ class MainApp(tk.Frame):
                     self.profile.load_profile(self.filepath)
                     self.profile.add_message(dm)
                     self.profile.save_profile(self.filepath)
+                index += 1
         else:
             print("No messages")
+
+    def add_contact(self):
+        contact = tk.simpledialog.askstring("Add Contact", "Enter the name of your new contact")
+        if len(contact) > 0:
+            self.body.insert_contact(contact)
+            self.profile.load_profile(str(self.filepath))
+            self.profile.add_friend(contact)
+            print(f'added {contact}')
+            self.profile.save_profile(str(self.filepath))
+
+    def loop_messages(self, lst):
+        if len(lst) > 0:
+            for dm in lst:
+                print(f'loop_messages {type(dm)}')
+                self.print_message(dm)
+
+    def print_message(self, msg):
+        print(f'{msg["type"].capitalize()} {msg["recipient"]} "{msg["message"]}" @ {msg["timestamp"]}')
+    
+    def show_contacts(self):
+        # self.profile.load_profile(str(self.filepath))
+        friendList = self.profile.friends
+        for person in friendList:
+            print(f"show {person}")
+            self.body.insert_contact(person)
+
+    def check_new(self):
+        self.root.after(2000, self.check_new)
+        dm_list = self.directMessenger.retrieve_new()
+        if dm_list != []:
+            self.load_chat(dm_list)
 
     def _draw(self):
         #Build menu and add to root frame

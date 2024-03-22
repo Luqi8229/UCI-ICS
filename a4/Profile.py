@@ -106,8 +106,10 @@ class Profile:
         self.history = history
     
     def add_history(self, dm):
-        if (dm["message"] and dm["timestamp"]) not in self.history[dm["recipient"]]:
+        print(f'history to add {dm}')
+        if dm not in self.history[dm["recipient"]]:
             self.history[dm["recipient"]].append(dm)
+            print(f'history added {dm}')
     
     def add_friend(self, contact):
         if contact not in self.friends:
@@ -160,10 +162,12 @@ class Profile:
                 self.bio = obj['bio']
                 self.history = {}
                 for fred in obj['history']:
-                    self.add_friend(fred)
-                    self.history[fred] = []
+                    if fred not in self.friends:
+                        self.friends.append(fred)
+                        self.history[fred] = []
                     for rec in obj["history"][fred]:
-                        self.history[fred].append(rec)
+                        if rec not in self.history[fred]:
+                            self.history[fred].append(rec)
                 self._posts = []
                 for post_obj in obj['_posts']:
                     post = Post(post_obj['entry'], post_obj['timestamp'])
