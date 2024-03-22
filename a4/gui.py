@@ -34,7 +34,7 @@ class Body(tk.Frame):
     
     #display user messages
     def insert_user_message(self, message:str):
-        self.entry_editor.insert(1.0, message + "\n", "entry-right")
+        self.entry_editor.insert(tk.END, message + "\n", "entry-right")
 
     #display contact messages
     def insert_contact_message(self, message:str):
@@ -166,14 +166,14 @@ class MainApp(tk.Frame):
     def configure_server(self):
         ud = NewContactDialog(self.root, "Configure Account", self.username, self.password, self.server)
 
-        # self.username = ud.user
-        # self.password = ud.pwd
-        # self.server = ud.server
-        # self.filepath = Path(ud.filepath)
-        self.username = "Cyro"
-        self.password = "Slimess"
-        self.server = "168.235.86.101"
-        self.filepath = Path("C:\\Users\\luqip\\uciWork\\a4\\Cyro.dsu")
+        self.username = ud.user
+        self.password = ud.pwd
+        self.server = ud.server
+        self.filepath = Path(ud.filepath)
+        # self.username = "Cyro"
+        # self.password = "Slimess"
+        # self.server = "168.235.86.101"
+        # self.filepath = Path("C:\\Users\\luqip\\uciWork\\a4\\Cyro.dsu")
         self.load_file()
         self.show_contacts()
         
