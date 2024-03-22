@@ -106,8 +106,8 @@ class Profile:
         self.history = history
     
     def add_history(self, dm):
-        if (dm.message and dm.timestamp) not in self.history[dm.recipient]:
-            self.history[dm.recipient].append(dm)
+        if (dm["message"] and dm["timestamp"]) not in self.history[dm["recipient"]]:
+            self.history[dm["recipient"]].append(dm)
     
     def add_friend(self, contact):
         if contact not in self.friends:
@@ -115,7 +115,7 @@ class Profile:
             self.history[contact] = []
 
     def add_message(self, msg: DirectMessage) -> None:
-        self.add_friend(msg.recipient)
+        self.add_friend(msg["recipient"])
         self.add_history(msg)
 
     def add_post(self, post: Post) -> None:

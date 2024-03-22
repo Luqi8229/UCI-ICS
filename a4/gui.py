@@ -22,9 +22,10 @@ class Body(tk.Frame):
             self._selected_callback(entry)
 
     def insert_contact(self, contact:str):
-        self._contacts.append(contact)
-        id = len(self._contacts) -1
-        self._insert_contact_tree(id, contact)
+        if contact not in self._contacts:
+            self._contacts.append(contact)
+            id = len(self._contacts) -1
+            self._insert_contact_tree(id, contact)
     
     def _insert_contact_tree(self, id, contact:str):
         if len(contact) > 25:
@@ -37,7 +38,7 @@ class Body(tk.Frame):
 
     #display contact messages
     def insert_contact_message(self, message:str):
-        self.entry_editor.insert(1.0, message + "\n", "entry-left")
+        self.entry_editor.insert(tk.END, message + "\n", "entry-left")
     
     def get_text_entry(self) -> str:
         return self.message_editor.get("1.0", "end").rstrip()
@@ -81,14 +82,14 @@ class Body(tk.Frame):
 
 
 class Footer(tk.Frame):
-    def __init__(self, root, send_callback=None):
+    def __init__(self, root, send_callback=None, username=None):
         tk.Frame.__init__(self,root)
         self.root = root
         self._send_callback = send_callback
+        self.username = username
         self._draw()
     
     def send_click(self):
-        print("send_click", self._send_callback)
         if self._send_callback is not None:
             self._send_callback()
 
@@ -98,6 +99,9 @@ class Footer(tk.Frame):
 
         self.footer_label = tk.Label(master=self, text="Ready.")
         self.footer_label.pack(fill=tk.BOTH, side=tk.LEFT, padx=5)
+        
+        self.username_label = tk.Label(master=self, text=self.username)
+        self.username_label.pack(fill=tk.BOTH, side=tk.LEFT, padx=100)
 
 
 
@@ -172,12 +176,13 @@ class MainApp(tk.Frame):
         self.filepath = Path("C:\\Users\\luqip\\uciWork\\a4\\Cyro.dsu")
         self.load_file()
         self.show_contacts()
+        
         id = main.after(2000, app.check_new) #updates window
-        print(id)
+        # print(id)
 
     def load_file(self):
         self.directMessenger = DirectMessenger(self.server, self.username, self.password)
-        if self.directMessenger.load_token() != None:
+        if self.directMessenger.token == None:
             self.username = tk.simpledialog.askstring("Username", "Username taken. Please enter another Username")
             self.password = tk.simpledialog.askstring("Password", "Please enter a new password")
             self.filepath = tk.simpledialog.askstring("Folder Directory", "Enter a folder for your new profile")
@@ -198,42 +203,17 @@ class MainApp(tk.Frame):
         self.body.entry_editor.delete(1.0, tk.END)
         all_history = self.directMessenger.retrieve_all()
         all_dm = self.directMessenger.recipient_history(self.recipient, all_history)
+        
+        self.profile.load_profile(str(self.filepath))
+        all_dm.extend(self.profile.history[self.recipient])
+        chatHistory = sorted(all_dm, key=lambda x: float(x["timestamp"]))
+        
         new_history = self.directMessenger.retrieve_new()
         new_dm = self.directMessenger.recipient_history(self.recipient, new_history)
-        # new_list = self.directMessenger.retrieve_new()
-        # print("History:")
-        # for dm in dm_list:
-        #     if self.recipient == dm["recipient"]:
-        #         self.print_messages(dm)
-        #         self.body.insert_contact_message(dm.message)
-        #         self.profile.add_message(dm)
-        # print("New:")
-        # if len(new_list) > 0:
-        #     for dm in new_list:
-        #         if self.recipient == dm["recipient"]:
-        #             self.print_messages(dm)
-        #             self.body.insert_contact_message(dm.message)
-        #             self.profile.add_message(dm)
-        # else:
-        #     print("No new messages")
-            
-    def combine_history(lst1, lst2): # for one recipient
-        history = []
-        rec1 = None
-        rec2 = None
-        while len(lst1) != 0 and len(lst2) != 0:
-            if len(lst1) > 0:
-                rec1 = lst1[0]
-            if len(lst2) > 0:
-                rec2 = lst1[0]
-            
-            if rec1["timestamp"] > rec2["timestamp"]: #find which sent last
-                history.append(rec1)
-                lst1.pop(0)
-            else:
-                history.append(rec2)
-                lst2.pop(0)
-        print(history)
+        print("History")
+        self.load_chat(chatHistory)
+        print("New")
+        self.load_chat(new_dm)
 
     def send_message(self):
         message = self.body.get_text_entry()
@@ -254,15 +234,13 @@ class MainApp(tk.Frame):
         self.profile.add_friend(contact)
         self.profile.save_profile(str(self.filepath))
 
-    def print_messages(self, msg):
-        print(f'From {msg["recipient"]} "{msg["message"]}" @ {msg["timestamp"]}')
+    def print_message(self, msg):
+        print(f'{msg["type"].capitalize()} {msg["recipient"]} "{msg["message"]}" @ {msg["timestamp"]}')
     
     def show_contacts(self):
         self.profile.load_profile(str(self.filepath))
         friendList = self.profile.friends
-        print(f'friendslist = {friendList}')
         for person in friendList:
-            
             print(f"added {person}")
             self.body.insert_contact(person)
 
@@ -270,15 +248,22 @@ class MainApp(tk.Frame):
         self.root.after(2000, self.check_new)
         dm_list = self.directMessenger.retrieve_new()
         if dm_list != []:
-            for dm in dm_list.reverse():
-                if self.recipient == dm.recipient:
-                    if dm.type == "to":
-                        self.body.insert_user_message(dm.message)
-                    elif dm.type == "from":
-                        self.body.insert_contact_message(dm.message)
+            self.load_chat(dm_list)
+    
+    def load_chat(self, lst:list):
+        if len(lst) > 0:
+            for dm in lst:
+                if self.recipient == dm["recipient"]:
+                    self.print_message(dm)
+                    if dm["type"] == "to":
+                        self.body.insert_user_message(dm["message"])
+                    elif dm["type"] == "from":
+                        self.body.insert_contact_message(dm["message"])
                     self.profile.load_profile(self.filepath)
                     self.profile.add_message(dm)
                     self.profile.save_profile(self.filepath)
+        else:
+            print("No messages")
 
     def _draw(self):
         #Build menu and add to root frame
@@ -299,7 +284,7 @@ class MainApp(tk.Frame):
         #Body and Footer class must be initialized and packed into root window
         self.body = Body(self.root, recipient_selected_callback=self.recipient_selected)
         self.body.pack(fill=tk.BOTH, side=tk.TOP, expand=True)
-        self.footer = Footer(self.root, send_callback=self.send_message)
+        self.footer = Footer(self.root, send_callback=self.send_message, username=self.username)
         self.footer.pack(fill=tk.BOTH, side=tk.BOTTOM)
 
 if __name__ == "__main__":

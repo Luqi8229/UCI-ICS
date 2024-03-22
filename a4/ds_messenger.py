@@ -99,7 +99,7 @@ class DirectMessenger:
         for msg in lst:
             if msg["recipient"] == recipient:
                 history.append(msg)
-        print(f'recipient_history {history}')
+        return history
                 
             
 
