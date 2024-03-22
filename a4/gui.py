@@ -157,28 +157,26 @@ class MainApp(tk.Frame):
         self.filepath = None
         self.profile = Profile()
 
-        #implement directMessenger
-        self.directMessenger = None
+        self.directMessenger = DirectMessenger()#loaded in load_file
 
         self._draw() #pack the widgets into root frame
-        # self.body.insert_contact("sampleStudent")
 
     def configure_server(self):
         ud = NewContactDialog(self.root, "Configure Account", self.username, self.password, self.server)
 
-        self.username = ud.user
-        self.password = ud.pwd
-        self.server = ud.server
-        self.filepath = Path(ud.filepath)
-        # self.username = "Cyro"
-        # self.password = "Slimess"
-        # self.server = "168.235.86.101"
-        # self.filepath = Path("C:\\Users\\luqip\\uciWork\\a4\\Cyro.dsu")
+        # self.username = ud.user
+        # self.password = ud.pwd
+        # self.server = ud.server
+        # self.filepath = Path(ud.filepath)
+        self.username = "Cyro"
+        self.password = "Slimess"
+        self.server = "168.235.86.101"
+        self.filepath = Path("C:\\Users\\luqip\\uciWork\\a4\\Cyro.dsu")
         self.load_file()
         self.show_contacts()
         
-        id = main.after(2000, app.check_new) #updates window
-        # print(id)
+        main.after(2000, app.check_new) #updates window
+        print(f"Logged into {self.username}")
 
     def load_file(self):
         self.directMessenger = DirectMessenger(self.server, self.username, self.password)
@@ -205,20 +203,14 @@ class MainApp(tk.Frame):
         recp_dm = self.directMessenger.recipient_history(self.recipient, all_dms)
         self.loop_messages(recp_dm)
         
-        print(self.profile.history)
         prof_history = self.profile.history[self.recipient]
-        print(prof_history)
         dm_history = self.combine_history(prof_history, recp_dm)
-        print(f'dm_history type {type(dm_history)}')
-        # print(dm_history)
         self.loop_messages(dm_history)
         chatHistory = sorted(dm_history, key=lambda x: float(x["timestamp"]))
         
         new_history = self.directMessenger.retrieve_new()
         new_dm = self.directMessenger.recipient_history(self.recipient, new_history)
         print("History")
-        print("friends ", self.profile.friends)
-        print("history ", self.profile.history)
         self.load_chat(chatHistory)
         print("New")
         self.load_chat(new_dm)
@@ -235,26 +227,17 @@ class MainApp(tk.Frame):
                 self.profile.save_profile(str(self.filepath))
                 
     def combine_history(self, lst1, lst2):
-        print(f"lst2 \n{lst2}")
         index = 1
         for dm in lst1:
-            print(index)
-            print(dm)
             if dm not in lst2:
-                print(0)
                 lst2.append(dm)
-                print(f'{dm} not in lst2')
             index += 1
         return lst2
     
     def load_chat(self, lst:list):
         if len(lst) > 0:
-            print(lst)
-            index = 1
             for dm in lst:
-                print(index)
                 if self.recipient == dm["recipient"]:
-                    print(0)
                     self.print_message(dm)
                     if dm["type"] == "to":
                         self.body.insert_user_message(dm["message"])
@@ -262,7 +245,6 @@ class MainApp(tk.Frame):
                         self.body.insert_contact_message(dm["message"])
                     self.profile.add_message(dm)
                     self.profile.save_profile(self.filepath)
-                index += 1
         else:
             print("No messages")
 
@@ -277,14 +259,9 @@ class MainApp(tk.Frame):
     def loop_messages(self, lst):
         if len(lst) > 0:
             for dm in lst:
-                print(f'loop_messages {type(dm)}')
                 self.print_message(dm)
 
     def print_message(self, msg):
-        if type(msg) is list:
-            print(f'{msg} is a list')
-            pass
-        else:
             print(f'{msg["type"].capitalize()} {msg["recipient"]} "{msg["message"]}" @ {msg["timestamp"]}')
     
     def show_contacts(self):
@@ -304,12 +281,6 @@ class MainApp(tk.Frame):
         menu_bar = tk.Menu(self.root)
         self.root['menu'] = menu_bar
 
-        menu_file = tk.Menu(menu_bar) #File Tab
-        menu_bar.add_cascade(menu=menu_file, label="File")
-        menu_file.add_command(label="New")
-        menu_file.add_command(label="Open...")
-        menu_file.add_command(label="Close")
-
         settings_file = tk.Menu(menu_bar) #Setting Tab
         menu_bar.add_cascade(menu=settings_file, label="Settings")
         settings_file.add_command(label="Add Contact", command=self.add_contact)
@@ -318,7 +289,7 @@ class MainApp(tk.Frame):
         #Body and Footer class must be initialized and packed into root window
         self.body = Body(self.root, recipient_selected_callback=self.recipient_selected)
         self.body.pack(fill=tk.BOTH, side=tk.TOP, expand=True)
-        self.footer = Footer(self.root, send_callback=self.send_message, username=self.username)
+        self.footer = Footer(self.root, send_callback=self.send_message)
         self.footer.pack(fill=tk.BOTH, side=tk.BOTTOM)
 
 if __name__ == "__main__":

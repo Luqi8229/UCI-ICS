@@ -100,16 +100,13 @@ class DirectMessenger:
             if msg["recipient"] == recipient:
                 history.append(msg)
         return history
-                
-            
-
 
 if __name__ == "__main__":
     messenger = DirectMessenger()
     messenger.load_token()
     print("history\n", messenger.retrieve_all())
     print("new messages\n", messenger.retrieve_new())
-    if messenger.send("What's up", "getTester") is True:
+    if messenger.send("What's up", "Cyro") is True:
         print("Messenge sent!")
     else:
         print("Messenge failed to send")
