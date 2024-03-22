@@ -115,6 +115,7 @@ class Profile:
 
     def add_message(self, contact:str, message: DirectMessage) -> None:
         self.add_friend(contact)
+        print(message)
         print(type(contact), type(message))
         self.add_history(message)
 

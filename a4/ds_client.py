@@ -58,7 +58,9 @@ def print_messages(info):
 
 def send_message(profile, user, repeating=False):
   print("Messages")
-  print_messages(user.retrieve_all())
+  history = user.retrieve_all()
+  profile.history = history
+  print_messages(history)
   print("New Messages:")
   print_messages(user.retrieve_new())
   
@@ -72,8 +74,6 @@ def send_message(profile, user, repeating=False):
         profile.add_message(str(recipient), direct_msg)
         profile.save_profile(str(profile.filepath))
 
-        all = user.retrieve_all()
-        print("All messages: ", all)
       sendAns = ui.yes_or_no("Would you like to send another message")
   ui.aline("Returning to publish command...")
 

@@ -3,14 +3,13 @@ import json, time
 from ds_protocol import extract_json_single, get_token_client
 # from ui import choose_profile
 
-class DirectMessage:
-    def __init__(self, type, recipient, message, timestamp):
-        self.type = type
+class DirectMessage(dict):
+    def __init__(self, ty, recipient, message, timestamp):
+        self.type = ty
         self.recipient = recipient
         self.message = message
         self.timestamp = timestamp
-
-        # dict.__init__(self, type=self.type, recipient=self.recipient, message=self.message, timestamp=self.timestamp)
+        dict.__init__(self, type=self.type, recipient=self.recipient, message=self.message, timestamp=self.timestamp)
         # it doesn't work
 
 class DirectMessenger:

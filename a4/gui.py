@@ -219,7 +219,6 @@ class MainApp(tk.Frame):
     def load_file(self):
         self.directMessenger = DirectMessenger(self.server, self.username, self.password)
         if self.directMessenger.load_token() != None:
-            print(self.directMessenger.self.token)
             self.username = tk.simpledialog.askstring("Username", "Username taken. Please enter another Username")
             self.password = tk.simpledialog.askstring("Password", "Please enter a new password")
             self.filepath = tk.simpledialog.askstring("Folder Directory", "Enter a folder for your new profile")
@@ -234,8 +233,6 @@ class MainApp(tk.Frame):
             self.profile.save_profile(str(self.filepath))
             self.directMessenger = DirectMessenger(self.server, self.username, self.password)
             self.directMessenger.load_token()
-        
-        
     
     def show_contacts(self):
         self.profile.load_profile(str(self.filepath))
@@ -246,15 +243,16 @@ class MainApp(tk.Frame):
     def check_new(self):
         self.root.after(2000, self.check_new)
         dm_list = self.directMessenger.retrieve_new()
-        for dm in dm_list:
-            if self.recipient == dm.recipient:
-                if dm.type == "to":
-                    self.body.insert_user_message(dm.message)
-                elif dm.type == "from":
-                    self.body.insert_contact_message(dm.message)
-                self.profile.load_profile(self.filepath)
-                self.profile.add_message(self.recipient, dm)
-                self.profile.save_profile(self.filepath)
+        if dm_list != []:
+            for dm in dm_list.reverse():
+                if self.recipient == dm.recipient:
+                    if dm.type == "to":
+                        self.body.insert_user_message(dm.message)
+                    elif dm.type == "from":
+                        self.body.insert_contact_message(dm.message)
+                    self.profile.load_profile(self.filepath)
+                    self.profile.add_message(self.recipient, dm)
+                    self.profile.save_profile(self.filepath)
 
     def _draw(self):
         #Build menu and add to root frame
