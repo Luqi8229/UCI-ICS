@@ -82,7 +82,7 @@ class Body(tk.Frame):
 
 
 class Footer(tk.Frame):
-    def __init__(self, root, send_callback=None, username=None):
+    def __init__(self, root, send_callback=None, username="None"):
         tk.Frame.__init__(self,root)
         self.root = root
         self._send_callback = send_callback
@@ -100,29 +100,28 @@ class Footer(tk.Frame):
         self.footer_label = tk.Label(master=self, text="Ready.")
         self.footer_label.pack(fill=tk.BOTH, side=tk.LEFT, padx=5)
         
-        self.username_label = tk.Label(master=self, text=self.username)
+        self.username_label = tk.Label(master=self, text="Logged in as" + self.username)
         self.username_label.pack(fill=tk.BOTH, side=tk.LEFT, padx=100)
 
 
 
 class NewContactDialog(tk.simpledialog.Dialog):
-    def __init__(self, root, title=None, user=None, pwd=None, server=None, filepath=None):
+    def __init__(self, root, title=None, user=None, pwd=None, filepath=None):
         self.root = root
-        self.server = server
         self.user = user
         self.pwd = pwd
         self.filepath = filepath
         super().__init__(root, title)
 
     def body(self, frame):
-        # Creates the configuration window
-        self.server_label = tk.Label(frame, width=30, text="DS Server Address")
-        self.server_label.pack()
-        self.server_entry = tk.Entry(frame, width=30)
-        #self.server_entry.insert(tk.END, self.server)
-        self.server_entry.pack()
+        #Creates the configuration window
+        # self.server_label = tk.Label(frame, width=30, text="DS Server Address")
+        # self.server_label.pack()
+        # self.server_entry = tk.Entry(frame, width=30)
+        # self.server_entry.insert(tk.END, self.server)
+        # self.server_entry.pack()
 
-        self.filepath_label = tk.Label(frame, width=30, text="File Directory")
+        self.filepath_label = tk.Label(frame, width=30, text="Folder Directory")
         self.filepath_label.pack()
         self.filepath_entry = tk.Entry(frame, width=30)
         self.filepath_entry.pack()
@@ -143,7 +142,6 @@ class NewContactDialog(tk.simpledialog.Dialog):
     def apply(self):
         self.user = self.username_entry.get()
         self.pwd = self.password_entry.get()
-        self.server = self.server_entry.get()
         self.filepath = self.filepath_entry.get()
 
 class MainApp(tk.Frame):
@@ -162,40 +160,40 @@ class MainApp(tk.Frame):
         self._draw() #pack the widgets into root frame
 
     def configure_server(self):
-        ud = NewContactDialog(self.root, "Configure Account", self.username, self.password, self.server)
+        self.server = tk.simpledialog.askstring("Server Address", "Please enter the server you want to connect to")
 
-        # self.username = ud.user
-        # self.password = ud.pwd
-        # self.server = ud.server
-        # self.filepath = Path(ud.filepath)
-        self.username = "Cyro"
-        self.password = "Slimess"
-        self.server = "168.235.86.101"
-        self.filepath = Path("C:\\Users\\luqip\\uciWork\\a4\\Cyro.dsu")
-        self.load_file()
+    def load_screen(self):
+        print(f'Logged in as {self.username}')
         self.show_contacts()
-        
         main.after(2000, app.check_new) #updates window
-        print(f"Logged into {self.username}")
 
-    def load_file(self):
-        self.directMessenger = DirectMessenger(self.server, self.username, self.password)
-        if self.directMessenger.token == None:
-            self.username = tk.simpledialog.askstring("Username", "Username taken. Please enter another Username")
-            self.password = tk.simpledialog.askstring("Password", "Please enter a new password")
-            self.filepath = tk.simpledialog.askstring("Folder Directory", "Enter a folder for your new profile")
-            self.filepath = Path(self.filepath)
+    def new_file(self):
+        ud = NewContactDialog(self.root, "Create New Profile")
+        self.username = ud.user
+        self.password = ud.pwd
+        self.filepath = ud.filepath
         fileName = self.username + ".dsu"
-        if self.filepath.exists() is True and self.filepath.name == fileName:
+        self.filepath = Path(self.filepath) / fileName
+        self.filepath.touch()
+        self.profile = Profile(self.server, str(self.filepath), self.username, self.password)
+        self.profile.save_profile(str(self.filepath))
+        self.directMessenger = DirectMessenger(self.server, self.username, self.password)
+        self.directMessenger.load_token()
+
+    def open_file(self):
+        if self.filepath.exists() is True and self.filepath.name == self.username + ".dsu":
             self.profile.load_profile(str(self.filepath))
-        else:
-            self.filepath = Path(self.filepath) / fileName
-            self.filepath.touch()
-            self.profile = Profile(self.server, str(self.filepath), self.username, self.password)
-            self.profile.save_profile(str(self.filepath))
+            self.username = self.profile.username
+            self.password = self.profile.password
+            self.filepath = Path(self.profile.filepath)
+            
             self.directMessenger = DirectMessenger(self.server, self.username, self.password)
             self.directMessenger.load_token()
-
+            messagebox.showinfo("Profile Loaded", f"Profile {self.username} has been loaded succesfully")
+        else:
+            print("ERROR: profile does not exist")
+            messagebox.showerror("File Not Found", f'Profile {self.username} does not exist. \nCreate a new file.')
+    
     def recipient_selected(self, recipient):
         self.recipient = recipient
         self.body.entry_editor.delete(1.0, tk.END)
@@ -227,11 +225,9 @@ class MainApp(tk.Frame):
                 self.profile.save_profile(str(self.filepath))
                 
     def combine_history(self, lst1, lst2):
-        index = 1
         for dm in lst1:
             if dm not in lst2:
                 lst2.append(dm)
-            index += 1
         return lst2
     
     def load_chat(self, lst:list):
@@ -281,6 +277,11 @@ class MainApp(tk.Frame):
         menu_bar = tk.Menu(self.root)
         self.root['menu'] = menu_bar
 
+        profile_tab = tk.Menu(menu_bar) #Profile Tab
+        menu_bar.add_cascade(menu=profile_tab, label="Profile")
+        profile_tab.add_command(label="New", command=self.new_file)
+        profile_tab.add_command(label="Open...", command=self.open_file)
+        
         settings_file = tk.Menu(menu_bar) #Setting Tab
         menu_bar.add_cascade(menu=settings_file, label="Settings")
         settings_file.add_command(label="Add Contact", command=self.add_contact)

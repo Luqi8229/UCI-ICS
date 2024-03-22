@@ -33,7 +33,8 @@ class DirectMessenger:
                 self.token = extract_json_single(response, "token")
                 print(message)
                 return None
-        except Exception:
+        except Exception as e:
+            print(e)
             self.username = input("Enter your username: ")
             self.password = input("Enter your password: ")
             self.dsuserver = input("Enter your server: ")
