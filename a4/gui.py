@@ -207,9 +207,10 @@ class MainApp(tk.Frame):
         
         print(self.profile.history)
         prof_history = self.profile.history[self.recipient]
+        print(prof_history)
         dm_history = self.combine_history(prof_history, recp_dm)
         print(f'dm_history type {type(dm_history)}')
-        print(dm_history)
+        # print(dm_history)
         self.loop_messages(dm_history)
         chatHistory = sorted(dm_history, key=lambda x: float(x["timestamp"]))
         
@@ -241,7 +242,7 @@ class MainApp(tk.Frame):
             print(dm)
             if dm not in lst2:
                 print(0)
-                lst2.append(lst1)
+                lst2.append(dm)
                 print(f'{dm} not in lst2')
             index += 1
         return lst2
