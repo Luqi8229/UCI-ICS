@@ -280,7 +280,11 @@ class MainApp(tk.Frame):
                 self.print_message(dm)
 
     def print_message(self, msg):
-        print(f'{msg["type"].capitalize()} {msg["recipient"]} "{msg["message"]}" @ {msg["timestamp"]}')
+        if type(msg) is list:
+            print(f'{msg} is a list')
+            pass
+        else:
+            print(f'{msg["type"].capitalize()} {msg["recipient"]} "{msg["message"]}" @ {msg["timestamp"]}')
     
     def show_contacts(self):
         friendList = self.profile.friends
