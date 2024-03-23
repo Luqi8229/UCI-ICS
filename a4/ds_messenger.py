@@ -23,27 +23,28 @@ class DirectMessenger:
         self.load_token()
 
     def load_token(self):
-        try:
-            self.client, response = get_token_client(self.username, self.password, self.dsuserver)
-            tp = extract_json_single(response, "type")
-            message = extract_json_single(response, "message")
-            if tp != "ok":
-                return message
-            elif tp == "ok":
-                self.token = extract_json_single(response, "token")
-                print(message)
-                return None
-        except Exception as e:
-            print(e)
-            self.username = input("Enter your username: ")
-            self.password = input("Enter your password: ")
-            self.dsuserver = input("Enter your server: ")
-            self.client, response = get_token_client(self.username, self.password, self.dsuserver)
-            message = extract_json_single(response, "message")
-            while "Invalid" in message:
-                print(f'{self.username} already exists in the server.\nChoose another profile.')
-                self.load_token()
+        # try:
+        print(self.username, self.password, self.dsuserver)
+        self.client, response = get_token_client(self.username, self.password, self.dsuserver)
+        tp = extract_json_single(response, "type")
+        message = extract_json_single(response, "message")
+        if tp != "ok":
+            return message
+        elif tp == "ok":
             self.token = extract_json_single(response, "token")
+            print(message)
+            return None
+        # except Exception as e:
+        #     print(e)
+        #     self.username = input("Enter your username: ")
+        #     self.password = input("Enter your password: ")
+        #     self.dsuserver = input("Enter your server: ")
+        #     self.client, response = get_token_client(self.username, self.password, self.dsuserver)
+        #     message = extract_json_single(response, "message")
+        #     while "Invalid" in message:
+        #         print(f'{self.username} already exists in the server.\nChoose another profile.')
+        #         self.load_token()
+        #     self.token = extract_json_single(response, "token")
 
     def send(self, message:str, recipient:str) -> bool:
         # must return true if message successfully sent, false if send failed.
